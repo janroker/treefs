@@ -17,12 +17,18 @@ export function App(): ReactNode {
   );
 
   return (
-    <main className="app">
-      <h1>{APP_NAME}</h1>
-      <SearchBox folderId={folderId} onOpen={openFolder} />
-      <Breadcrumbs folderId={folderId} onOpen={openFolder} />
-      <CreateItemForm folderId={folderId} />
-      <FolderView folderId={folderId} onOpen={openFolder} />
-    </main>
+    <>
+      <header className="topbar">
+        <h1>{APP_NAME}</h1>
+        <SearchBox folderId={folderId} onOpen={openFolder} />
+      </header>
+      <main className="content">
+        <div className="toolbar">
+          <Breadcrumbs folderId={folderId} onOpen={openFolder} />
+          <CreateItemForm folderId={folderId} />
+        </div>
+        <FolderView folderId={folderId} onOpen={openFolder} />
+      </main>
+    </>
   );
 }

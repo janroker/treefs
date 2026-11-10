@@ -9,30 +9,27 @@ import type {
   SearchScope,
   TypeFilter,
 } from './components.types';
+import { FolderLink } from './FolderLink';
+import { FileIcon, FolderIcon } from './Icons';
 
 function SearchResults({
   items,
   onOpen,
 }: Readonly<SearchResultsProps>): ReactNode {
   if (items.length === 0) {
-    return <p>No matches.</p>;
+    return <p className="muted">No matches.</p>;
   }
   return (
-    <ul className="items" aria-label="Search results">
+    <ul className="items search-results" aria-label="Search results">
       {items.map((item) => (
         <li key={item.id} className="item">
-          <span className="kind">
-            {item.type === 'folder' ? 'Folder' : 'File'}
-          </span>
-          <button
-            type="button"
-            className="link"
-            onClick={() =>
-              onOpen(item.type === 'folder' ? item.id : item.parentId)
-            }
+          {item.type === 'folder' ? <FolderIcon /> : <FileIcon />}
+          <FolderLink
+            folderId={item.type === 'folder' ? item.id : item.parentId}
+            onOpen={onOpen}
           >
-            {item.path}
-          </button>
+            <span className="name">{item.path}</span>
+          </FolderLink>
         </li>
       ))}
     </ul>
@@ -83,7 +80,7 @@ function SearchOptions({
           onChange={(event) =>
             onMatch(event.target.checked ? 'exact' : 'prefix')
           }
-        />{' '}
+        />
         Exact name
       </label>
     </>
@@ -99,7 +96,7 @@ export function SearchBox({
 
   return (
     <section aria-label="Search" className="search">
-      <div className="create">
+      <div className="search-bar">
         <input
           aria-label="Search by name"
           placeholder={

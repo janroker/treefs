@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useItemDetail } from '../api/items';
 import type { BreadcrumbsProps } from './components.types';
+import { FolderLink } from './FolderLink';
 
 export function Breadcrumbs({
   folderId,
@@ -13,22 +14,21 @@ export function Breadcrumbs({
       : [...folder.ancestors, { id: folder.id, name: folder.name }];
 
   return (
-    <nav aria-label="Breadcrumbs" className="breadcrumbs">
-      <button type="button" className="link" onClick={() => onOpen(null)}>
-        All files
-      </button>
-      {trail.map((crumb) => (
-        <span key={crumb.id}>
-          {' / '}
-          <button
-            type="button"
-            className="link"
-            onClick={() => onOpen(crumb.id)}
-          >
-            {crumb.name}
-          </button>
-        </span>
-      ))}
+    <nav aria-label="Breadcrumbs">
+      <ol className="breadcrumbs">
+        <li>
+          <FolderLink folderId={null} onOpen={onOpen}>
+            All files
+          </FolderLink>
+        </li>
+        {trail.map((crumb) => (
+          <li key={crumb.id}>
+            <FolderLink folderId={crumb.id} onOpen={onOpen}>
+              {crumb.name}
+            </FolderLink>
+          </li>
+        ))}
+      </ol>
     </nav>
   );
 }

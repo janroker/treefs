@@ -27,7 +27,7 @@ export function CreateItemForm({
   }
 
   return (
-    <form className="create" onSubmit={submit}>
+    <form className="create-form" onSubmit={submit}>
       <label htmlFor="new-item-name">New</label>
       <select
         aria-label="Type"

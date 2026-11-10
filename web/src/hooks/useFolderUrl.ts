@@ -8,7 +8,7 @@ function readFolderId(): FolderId {
   return new URLSearchParams(window.location.search).get(FOLDER_PARAM);
 }
 
-function urlOfFolder(folderId: FolderId): string {
+export function urlOfFolder(folderId: FolderId): string {
   if (folderId === null) {
     return window.location.pathname;
   }

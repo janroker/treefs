@@ -1,6 +1,7 @@
 import { type ReactNode, useState } from 'react';
 import { useDeleteItem } from '../api/items';
 import type { DeleteButtonProps } from './components.types';
+import { TrashIcon } from './Icons';
 
 export function DeleteButton({
   id,
@@ -13,22 +14,24 @@ export function DeleteButton({
     return (
       <button
         type="button"
+        className="icon-button"
         onClick={() => setConfirming(true)}
         aria-label={`Delete ${name}`}
       >
-        Delete
+        <TrashIcon />
       </button>
     );
   }
   return (
     <span className="confirm">
+      <span>Delete everything inside?</span>
       <button
         type="button"
         className="danger"
         disabled={remove.isPending}
         onClick={() => remove.mutate(id)}
       >
-        Delete {name} and everything in it
+        Delete
       </button>
       <button type="button" onClick={() => setConfirming(false)}>
         Cancel

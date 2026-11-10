@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import type { FolderId, Item, ItemType, MatchMode } from '../api/api.types';
 
 type OpenFolderProps = {
@@ -13,6 +14,11 @@ export type BreadcrumbsProps = FolderIdProps & OpenFolderProps;
 export type FolderViewProps = FolderIdProps & OpenFolderProps;
 
 export type ItemRowProps = OpenFolderProps & { item: Item };
+
+export type FolderLinkProps = OpenFolderProps & {
+  folderId: FolderId;
+  children: ReactNode;
+};
 
 export type DeleteButtonProps = {
   id: string;
