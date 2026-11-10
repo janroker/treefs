@@ -4,24 +4,29 @@ import type { ItemRowProps } from './components.types';
 import { DeleteButton } from './DeleteButton';
 import { FolderLink } from './FolderLink';
 import { FileIcon, FolderIcon } from './Icons';
+import { ItemName } from './ItemName';
 
 export function ItemRow({
   item,
+  index,
+  top,
+  measure,
   focus,
   onOpen,
   onDeleted,
 }: Readonly<ItemRowProps>): ReactNode {
-  const rowRef = useRef<HTMLLIElement>(null);
+  const rowRef = useRef<HTMLLIElement | null>(null);
   const flash = useRowFocus(rowRef, focus, item.id);
-  const name = (
-    <span className="name" title={item.name}>
-      {item.name}
-    </span>
-  );
+  const name = <ItemName name={item.name} />;
 
   return (
     <li
-      ref={rowRef}
+      ref={(node) => {
+        rowRef.current = node;
+        measure(node);
+      }}
+      data-index={index}
+      style={{ transform: `translateY(${String(top)}px)` }}
       tabIndex={-1}
       className={flash ? 'item highlighted' : 'item'}
     >

@@ -188,12 +188,39 @@ a:focus-visible {
 }
 
 .items {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
+}
+
+.new-items,
+.virtual {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.scroller {
+  max-height: calc(100vh - 14rem);
+  overflow-y: auto;
+}
+
+.virtual {
+  position: relative;
+}
+
+.virtual > .item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.new-items .item {
+  border-bottom: 1px solid var(--border);
 }
 
 .item {
@@ -204,10 +231,6 @@ a:focus-visible {
   min-height: 40px;
   padding: 0 12px;
   border-top: 1px solid var(--border);
-}
-
-.item:first-child {
-  border-top: 0;
 }
 
 .item:hover {
@@ -429,4 +452,20 @@ input[type='checkbox'] {
   padding: 8px 12px;
   background: color-mix(in srgb, var(--accent) 10%, transparent);
   border-radius: var(--radius);
+}
+
+.name.split {
+  display: flex;
+}
+
+.name-start {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: pre;
+}
+
+.name-end {
+  flex: none;
+  white-space: pre;
 }

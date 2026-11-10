@@ -13,9 +13,6 @@ export function useRowFocus(
     if (focused) {
       rowRef.current?.focus({ preventScroll: flash });
     }
-    if (flash) {
-      rowRef.current?.scrollIntoView({ block: 'center' });
-    }
   }, [rowRef, focused, flash]);
 
   return flash;

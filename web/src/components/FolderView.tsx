@@ -1,7 +1,11 @@
 import type { ReactNode } from 'react';
 import { useFolderItems } from '../api/items';
 import type { Item } from '../api/api.types';
-import type { FolderViewProps, RowFocus } from './components.types';
+import type {
+  FolderViewProps,
+  LoadMoreProps,
+  RowFocus,
+} from './components.types';
 import { FolderNotice } from './FolderNotice';
 import { ItemList } from './ItemList';
 import { LoadMore } from './LoadMore';
@@ -14,6 +18,12 @@ function locateNameOf(
   const missing =
     focus?.flash === true && !items.some((item) => item.id === focus.id);
   return missing && canLocate ? focus.name : null;
+}
+
+function loadNextPage(folder: LoadMoreProps['folder']): void {
+  if (folder.hasNextPage && !folder.isFetchingNextPage) {
+    void folder.fetchNextPage();
+  }
 }
 
 export function FolderView({
@@ -43,7 +53,12 @@ export function FolderView({
         onShowOnly={onShowOnly}
         onClearFilter={onClearFilter}
       />
-      <ItemList {...listProps} folderId={folderId} items={items} />
+      <ItemList
+        {...listProps}
+        folderId={folderId}
+        items={items}
+        onNearEnd={() => loadNextPage(folder)}
+      />
       <LoadMore
         folder={folder}
         itemCount={items.length}

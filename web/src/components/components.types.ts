@@ -57,6 +57,9 @@ export type FolderNoticeProps = FilterProps & {
 
 export type ItemRowProps = OpenFolderProps & {
   item: Item;
+  index: number;
+  top: number;
+  measure: (node: HTMLElement | null) => void;
   focus: RowFocus | null;
   onDeleted: () => void;
 };
@@ -134,10 +137,10 @@ export type SearchFieldProps = {
   onSelect: (item: Item) => void;
 };
 
-export type ItemListProps = FolderIdProps &
-  OpenFolderProps &
-  CreateProps &
-  FocusProps & { items: Array<Item> };
+export type VirtualRowsProps = OpenFolderProps &
+  FocusProps & { items: Array<Item>; onNearEnd: () => void };
+
+export type ItemListProps = FolderIdProps & CreateProps & VirtualRowsProps;
 
 export type NewItemRowProps = FolderIdProps & {
   type: ItemType;
@@ -178,4 +181,8 @@ export type LoadMoreProps = {
   folder: UseInfiniteQueryResult<InfiniteData<ItemPage>>;
   itemCount: number;
   onFocusItem: (item: Item) => void;
+};
+
+export type ItemNameProps = {
+  name: string;
 };

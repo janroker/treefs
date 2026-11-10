@@ -1,3 +1,4 @@
+import type { VirtualItem } from '@tanstack/react-virtual';
 import type { KeyboardEvent, RefObject, SyntheticEvent } from 'react';
 import type { FolderId, Item, ItemType, MatchMode } from '../api/api.types';
 import type {
@@ -88,4 +89,17 @@ export type Browser = {
   filterName: string | null;
   showOnly: (name: string) => void;
   clearFilter: () => void;
+};
+
+export type VirtualRowsConfig = {
+  items: ReadonlyArray<Item>;
+  scrollRef: RefObject<HTMLElement | null>;
+  focus: RowFocus | null;
+  onNearEnd: () => void;
+};
+
+export type VirtualRows = {
+  rows: Array<VirtualItem>;
+  totalSize: number;
+  measure: (node: HTMLElement | null) => void;
 };
