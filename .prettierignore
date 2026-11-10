@@ -1,5 +1,4 @@
 pnpm-lock.yaml
 dist
 coverage
-data
 web/src/api/generated

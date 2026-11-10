@@ -48,6 +48,8 @@ pnpm start:dev     # API  :3001
 pnpm dev:web       # web  :3000, proxies /api
 ```
 
+- **One command:** `docker compose up --build` builds the API and web images, starts Postgres, migrates on API
+  start and serves the app on http://localhost:3000 (nginx forwards `/api` to the API)
 - **Debug:** `pnpm start:debug` (inspector on 9229), then "Attach to API" in `.vscode/launch.json`
 - **Production build:** `pnpm build` → `node backend/dist/apps/api/main.js`; `pnpm --filter web build` → `web/dist`
 - **Dev container:** set `DB_HOST=host.docker.internal` in both `.env` files
@@ -120,7 +122,7 @@ flowchart TD
 - **Database outage:** answers 500, there is no 503 mapping or `Retry-After`
 - **Web trusts the API:** types are generated, responses are not validated at runtime
 - **Left out:** health checks, rate limits, helmet, CORS allowlist, body limit, separate DB roles, CSP
-- **Delivery:** no CI job (the pre-push hook runs `pnpm check`), no Dockerfiles for the app
+- **Delivery:** no CI job (the pre-push hook runs `pnpm check`); the Dockerfiles are basic, with no layer-caching tricks
 - **Tests:** no property-based or Playwright tests; integration files run serially on one test database
 - **Out of scope:** auth, sharing, rename/move, file contents, visit-based suggestions, fuzzy search
 

@@ -1,0 +1,13 @@
+.git
+.github
+.claude
+.devcontainer
+.vscode
+node_modules
+**/node_modules
+**/dist
+coverage
+web/src/api/generated
+**/.env
+**/.env.*
+!**/.env.example
