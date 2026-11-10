@@ -8,6 +8,8 @@ import type {
 import { DeleteButton } from './DeleteButton';
 import { FolderLink } from './FolderLink';
 import { FileIcon, FolderIcon } from './Icons';
+import { NewItemButtons } from './NewItemButtons';
+import { NewItemRow } from './NewItemRow';
 
 function ItemRow({
   item,
@@ -44,15 +46,27 @@ function ItemRow({
 }
 
 function ItemList({
+  folderId,
   items,
   highlightedId,
+  creating,
+  onCreate,
+  onCreateDone,
   onOpen,
 }: Readonly<ItemListProps>): ReactNode {
-  if (items.length === 0) {
-    return <p className="empty">This folder is empty.</p>;
+  if (items.length === 0 && creating === null) {
+    return (
+      <div className="empty" aria-live="polite">
+        <p>This folder is empty.</p>
+        <NewItemButtons onCreate={onCreate} />
+      </div>
+    );
   }
   return (
     <ul className="items">
+      {creating !== null && (
+        <NewItemRow type={creating} folderId={folderId} onDone={onCreateDone} />
+      )}
       {items.map((item) => (
         <ItemRow
           key={item.id}
@@ -69,6 +83,7 @@ export function FolderView({
   folderId,
   highlightedId,
   onOpen,
+  ...createProps
 }: Readonly<FolderViewProps>): ReactNode {
   const folder = useFolderItems(folderId);
 
@@ -83,6 +98,8 @@ export function FolderView({
   return (
     <section aria-label="Folder contents">
       <ItemList
+        {...createProps}
+        folderId={folderId}
         items={folder.data.pages.flatMap((page) => page.items)}
         highlightedId={highlightedId}
         onOpen={onOpen}

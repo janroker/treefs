@@ -62,7 +62,11 @@ export function SearchResults({
   ...rowProps
 }: Readonly<SearchResultsProps>): ReactNode {
   if (items.length === 0) {
-    return <p className="muted popup-note">No matches.</p>;
+    return (
+      <p className="muted popup-note" aria-live="polite">
+        No matches.
+      </p>
+    );
   }
   return (
     <ul id={listId} role="listbox" aria-label="Search results">

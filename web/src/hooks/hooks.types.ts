@@ -1,5 +1,5 @@
-import type { KeyboardEvent } from 'react';
-import type { FolderId, Item, MatchMode } from '../api/api.types';
+import type { KeyboardEvent, RefObject, SyntheticEvent } from 'react';
+import type { FolderId, Item, ItemType, MatchMode } from '../api/api.types';
 import type { SearchScope, TypeFilter } from '../components/components.types';
 
 export type FolderUrl = readonly [FolderId, (folderId: FolderId) => void];
@@ -46,4 +46,29 @@ export type SearchNavigation = ActiveOption & {
   listId: string;
   activeId: string | undefined;
   choose: (index: number) => void;
+};
+
+export type NewItemFormConfig = {
+  type: ItemType;
+  folderId: FolderId;
+  inputRef: RefObject<HTMLInputElement | null>;
+  onDone: () => void;
+};
+
+export type NewItemForm = {
+  name: string;
+  setName: (name: string) => void;
+  submit: (event: SyntheticEvent<HTMLFormElement>) => void;
+  isPending: boolean;
+  error: Error | null;
+};
+
+export type Browser = {
+  folderId: FolderId;
+  highlightedId: string | null;
+  creating: ItemType | null;
+  open: (folderId: FolderId) => void;
+  select: (item: Item) => void;
+  startCreate: (type: ItemType) => void;
+  finishCreate: () => void;
 };

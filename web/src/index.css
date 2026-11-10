@@ -73,6 +73,12 @@ button:disabled {
   cursor: default;
 }
 
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
 button.danger {
   background: var(--danger);
   border-color: var(--danger);
@@ -131,8 +137,7 @@ a:focus-visible {
 }
 
 .search,
-.search-bar,
-.create-form {
+.actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -334,4 +339,30 @@ input[type='checkbox'] {
   .highlighted {
     animation: none;
   }
+}
+
+.new-item {
+  padding-block: 4px;
+}
+
+.new-item form {
+  grid-column: 2 / -1;
+  display: flex;
+  gap: 8px;
+}
+
+.new-item input {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-error {
+  grid-column: 2 / -1;
+  padding-bottom: 4px;
+  font-size: 13px;
+}
+
+.empty .actions {
+  justify-content: center;
+  margin-top: 12px;
 }

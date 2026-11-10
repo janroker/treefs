@@ -6,14 +6,21 @@ type OpenFolderProps = {
   onOpen: (folderId: FolderId) => void;
 };
 
-export type FolderIdProps = {
+type FolderIdProps = {
   folderId: FolderId;
 };
 
 export type BreadcrumbsProps = FolderIdProps & OpenFolderProps;
 
+type CreateProps = {
+  creating: ItemType | null;
+  onCreate: (type: ItemType) => void;
+  onCreateDone: () => void;
+};
+
 export type FolderViewProps = FolderIdProps &
-  OpenFolderProps & { highlightedId: string | null };
+  OpenFolderProps &
+  CreateProps & { highlightedId: string | null };
 
 export type ItemRowProps = OpenFolderProps & {
   item: Item;
@@ -84,10 +91,19 @@ export type SearchFieldProps = {
   onSelect: (item: Item) => void;
 };
 
-export type ItemListProps = OpenFolderProps & {
-  items: Array<Item>;
-  highlightedId: string | null;
+export type ItemListProps = FolderIdProps &
+  OpenFolderProps &
+  CreateProps & {
+    items: Array<Item>;
+    highlightedId: string | null;
+  };
+
+export type NewItemRowProps = FolderIdProps & {
+  type: ItemType;
+  onDone: () => void;
 };
+
+export type NewItemButtonsProps = Pick<CreateProps, 'onCreate'>;
 
 export type SearchInputProps = {
   form: SearchForm;
