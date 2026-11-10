@@ -3,8 +3,5 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": [
-    "apps/api/**/*",
-    "libs/**/*"
-  ]
+  "include": ["apps/api/**/*", "libs/**/*"]
 }
