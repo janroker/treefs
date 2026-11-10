@@ -16,7 +16,6 @@ describe('toRuntimeException', () => {
   it.each([
     [HttpStatus.NOT_FOUND, 'notFound.routeNotFound'],
     [HttpStatus.PAYLOAD_TOO_LARGE, 'payloadTooLarge.payloadTooLarge'],
-    [HttpStatus.TOO_MANY_REQUESTS, 'tooManyRequests.rateLimited'],
     [HttpStatus.METHOD_NOT_ALLOWED, 'badRequest.badRequest'],
   ])('maps the HTTP status %s to %s', (status, code) => {
     const exception = toRuntimeException(new HttpException('x', status));

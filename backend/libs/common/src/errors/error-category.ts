@@ -5,7 +5,6 @@ export const errorCategory = {
   CONFLICT: 'conflict',
   PAYLOAD_TOO_LARGE: 'payloadTooLarge',
   UNPROCESSABLE: 'unprocessable',
-  TOO_MANY_REQUESTS: 'tooManyRequests',
   INTERNAL_SERVER: 'internalServer',
 } as const;
 

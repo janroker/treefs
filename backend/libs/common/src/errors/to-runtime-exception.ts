@@ -6,7 +6,6 @@ import {
   NotFoundException,
   PayloadTooLargeException,
   RuntimeException,
-  TooManyRequestsException,
 } from './exceptions';
 
 const FIRST_SERVER_ERROR = 500;
@@ -22,11 +21,6 @@ const knownStatuses = new Map<number, (message: string) => RuntimeException>([
     HttpStatus.PAYLOAD_TOO_LARGE,
     (message) =>
       new PayloadTooLargeException(message, exceptionStatus.PAYLOAD_TOO_LARGE),
-  ],
-  [
-    HttpStatus.TOO_MANY_REQUESTS,
-    (message) =>
-      new TooManyRequestsException(message, exceptionStatus.RATE_LIMITED),
   ],
 ]);
 

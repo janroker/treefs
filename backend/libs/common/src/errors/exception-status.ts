@@ -6,7 +6,6 @@ export const exceptionStatus = {
   PARENT_NOT_FOLDER: 'parentNotFolder',
   NAME_TAKEN: 'nameTaken',
   DEPTH_EXCEEDED: 'depthExceeded',
-  RATE_LIMITED: 'rateLimited',
   ROUTE_NOT_FOUND: 'routeNotFound',
   PAYLOAD_TOO_LARGE: 'payloadTooLarge',
   BAD_REQUEST: 'badRequest',
