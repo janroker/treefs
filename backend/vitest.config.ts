@@ -7,6 +7,6 @@ export default defineConfig({
   test: {
     globals: true,
     root: './',
-    include: ['apps/api/**/__spec__/**/*.spec.ts'],
+    include: ['{apps,libs}/**/__spec__/**/*.spec.ts'],
   },
 });

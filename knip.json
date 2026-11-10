@@ -7,7 +7,7 @@
     },
     "backend": {
       "entry": ["apps/api/src/main.ts"],
-      "project": ["apps/**/*.ts"],
+      "project": ["apps/**/*.ts", "libs/**/*.ts"],
       "ignoreDependencies": [
         "@nestjs/mau",
         "@types/express",

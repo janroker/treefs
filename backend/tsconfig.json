@@ -16,7 +16,11 @@
     "incremental": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "types": ["vitest/globals", "node"]
+    "types": ["vitest/globals", "node"],
+    "paths": {
+      "@app/config": ["./libs/config/src/index.ts"],
+      "@app/config/*": ["./libs/config/src/*"]
+    }
   },
   "files": [],
   "references": [

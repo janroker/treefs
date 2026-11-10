@@ -11,4 +11,21 @@ export default defineConfig([
       parserOptions: { tsconfigRootDir: import.meta.dirname },
     },
   },
+  {
+    files: ['apps/**/*.ts', 'libs/**/*.ts'],
+    rules: {
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'process',
+          property: 'env',
+          message: 'Read configuration through the config library.',
+        },
+      ],
+    },
+  },
+  {
+    files: ['libs/config/**/*.ts'],
+    rules: { 'no-restricted-properties': 'off' },
+  },
 ]);
