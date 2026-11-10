@@ -18,15 +18,6 @@
       "compilerOptions": {
         "tsConfigPath": "apps/api/tsconfig.app.json"
       }
-    },
-    "web": {
-      "type": "application",
-      "root": "apps/web",
-      "entryFile": "main",
-      "sourceRoot": "apps/web/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/web/tsconfig.app.json"
-      }
     }
   }
 }
