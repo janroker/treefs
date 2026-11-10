@@ -108,10 +108,27 @@ flowchart TD
 - **Migrations** are generated from the entities (`pnpm --filter backend migration:generate`) and run on demand
   with `pnpm db:migrate`
 
+## Measured
+
+Local run on one Postgres 18 container with about 2.1M items: 200k folders holding a `README.md` each, one
+folder with 100k children, a chain 64 levels deep and 2,000 names of 251 bytes. API response times, warm cache:
+
+| Request                                                 | Time          |
+| ------------------------------------------------------- | ------------- |
+| list a folder page (also page 2 of the 100k folder)     | 4 to 7 ms     |
+| get an item 64 levels deep, ancestors included          | 4 ms          |
+| exact name inside one folder                            | 4 ms          |
+| exact `README.md` everywhere (200k matches), page 1     | 56 ms         |
+| prefix `rep`, files                                     | 16 to 22 ms   |
+| newest items (empty prefix)                             | 6 ms          |
+| prefix whose matches are all old (`area`, `a`, `set-1`) | 270 to 360 ms |
+
+The last row is the typeahead worst case below. The seed was a throw-away SQL script and is not in the repo.
+
 ## Trade-offs and what I skipped
 
 - **Typeahead worst case:** newest-first is not index-ordered; a prefix with thousands of old matches walks the
-  primary key (~100 ms at 10^6 rows). Next: cap candidates by name, or a search index
+  primary key (270 to 360 ms at 2.1M rows, see Measured). Next: cap candidates by name, or a search index
 - **Load testing:** no k6 at 10^5 to 10^7 rows; EXPLAIN shows index ranges with a LIMIT. Next: chart p95 vs size
 - **Failure tests:** no forced serialization failures, connection kills mid-delete, SIGTERM under load.
   Constraints and single-statement writes make them hold by construction
@@ -121,6 +138,9 @@ flowchart TD
   and returns 500. Next: soft delete plus background purge
 - **Database outage:** answers 500, there is no 503 mapping or `Retry-After`
 - **Web trusts the API:** types are generated, responses are not validated at runtime
+- **Web paging:** the list is virtualised and loads pages as you scroll. A search result far down a big folder
+  does not jump there: the page says so and offers to show only that item. A real fix needs a start-at cursor
+  in the API. Exact search offers "Show more", not a results page
 - **Left out:** health checks, rate limits, helmet, CORS allowlist, body limit, separate DB roles, CSP
 - **Delivery:** no CI job (the pre-push hook runs `pnpm check`); the Dockerfiles are basic, with no layer-caching tricks
 - **Tests:** no property-based or Playwright tests; integration files run serially on one test database
