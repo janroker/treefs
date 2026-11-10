@@ -8,16 +8,16 @@
     "backend": {
       "entry": [
         "apps/api/src/main.ts",
-        "libs/*/src/index.ts",
+        "libs/*/src/**/index.ts",
         "libs/database/src/data-source.ts",
         "libs/database/src/migrations/*.ts"
       ],
       "project": ["apps/**/*.ts", "libs/**/*.ts"],
-      "ignoreDependencies": [
-        "@nestjs/mau",
-        "@types/express",
-        "source-map-support"
-      ]
+      "ignoreDependencies": ["@nestjs/mau", "source-map-support"],
+      "ignoreIssues": {
+        "apps/api/src/**/dto/**/*.ts": ["exports", "types"],
+        "apps/api/src/types.ts": ["types"]
+      }
     },
     "web": {}
   }

@@ -71,6 +71,14 @@ pnpm test:e2e      # integration tests (*.e2e-spec.ts), need Postgres
   `{ code: '<category>.<status>', message, statusCode, correlationId }`. The API's filter and the validation pipe
   are registered on the controllers (`@UseFilters`, `@UsePipes`), never globally; one global
   `RuntimeExceptionFilter` answers what never reaches a controller (unknown routes, body parser errors).
+- Services return raw types (entities, `Page<T>` from `@app/common`), never DTOs. The controller turns them into
+  out-DTOs with `@UseInterceptors(transformAndValidateResponse(toItemDto, itemDtoSchema))`, which also validates the result against
+  the out-DTO schema; a transformer takes one argument. Cursor and
+  paging helpers, and constants shared with the database (name length, depth cap), live in `@app/common`.
+- A lib has no root barrel: import from its domain folder (`@app/common/pagination`), never from `@app/common`.
+- Check-and-throw code in a class is a `private static assert<Something>` method. A helper used by one class is a
+  private method of it, not a module-level function. Class members always carry `public`, `private` or
+  `protected` (ESLint enforces it in the API) and start `private`: `public` only when another class uses the member.
 - A module groups its code in folders per kind (`constants`, `types`, `services`, `repositories`, `controllers`,
   `dto`), each with an `index.ts` of named exports. Files are named `<domain>.<kind>.ts` or `<domain>-<kind>.ts`
   (`items.constants.ts`, `items-repository.types.ts`); import a folder through its barrel, a lib through its

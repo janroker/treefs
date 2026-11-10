@@ -3,6 +3,6 @@ import { errorCategory } from '../error-category';
 import { RuntimeException } from './runtime.exception';
 
 export class BadRequestException extends RuntimeException {
-  readonly category = errorCategory.BAD_REQUEST;
-  readonly statusCode = HttpStatus.BAD_REQUEST;
+  protected readonly category = errorCategory.BAD_REQUEST;
+  protected readonly statusCode = HttpStatus.BAD_REQUEST;
 }

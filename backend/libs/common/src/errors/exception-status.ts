@@ -7,7 +7,6 @@ export const exceptionStatus = {
   NAME_TAKEN: 'nameTaken',
   DEPTH_EXCEEDED: 'depthExceeded',
   RATE_LIMITED: 'rateLimited',
-  DEPENDENCY_UNAVAILABLE: 'dependencyUnavailable',
   ROUTE_NOT_FOUND: 'routeNotFound',
   PAYLOAD_TOO_LARGE: 'payloadTooLarge',
   BAD_REQUEST: 'badRequest',

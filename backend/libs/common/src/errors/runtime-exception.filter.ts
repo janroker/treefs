@@ -8,8 +8,6 @@ import {
 import type { Request, Response } from 'express';
 import { InternalServerException } from './exceptions/internal-server.exception';
 import type { RuntimeException } from './exceptions';
-import { ServiceUnavailableException } from './exceptions/service-unavailable.exception';
-import { toErrorDto } from './to-error-dto';
 import { toRuntimeException } from './to-runtime-exception';
 
 const CORRELATION_HEADER = 'x-request-id';
@@ -23,19 +21,16 @@ function correlationIdOf(request: Request): string {
 export class RuntimeExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(RuntimeExceptionFilter.name);
 
-  catch(error: unknown, host: ArgumentsHost): void {
+  public catch(error: unknown, host: ArgumentsHost): void {
     const exception = this.translate(error);
     this.log(exception, error);
     const http = host.switchToHttp();
     const correlationId = correlationIdOf(http.getRequest<Request>());
     const response = http.getResponse<Response>();
-    if (exception instanceof ServiceUnavailableException) {
-      response.set('Retry-After', String(exception.retryAfterSeconds));
-    }
     response
-      .status(exception.statusCode)
+      .status(exception.getStatusCode())
       .set(CORRELATION_HEADER, correlationId)
-      .json(toErrorDto(exception, correlationId));
+      .json(exception.toErrorDto(correlationId));
   }
 
   protected translate(error: unknown): RuntimeException {
@@ -49,8 +44,6 @@ export class RuntimeExceptionFilter implements ExceptionFilter {
       );
       return;
     }
-    this.logger.warn(
-      `${exception.category}.${exception.status}: ${exception.message}`,
-    );
+    this.logger.warn(`${exception.getCode()}: ${exception.message}`);
   }
 }

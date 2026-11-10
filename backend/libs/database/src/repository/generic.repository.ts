@@ -1,4 +1,4 @@
-import { type ExceptionStatus, NotFoundException } from '@app/common';
+import { type ExceptionStatus, NotFoundException } from '@app/common/errors';
 import type {
   EntityManager,
   EntityTarget,
@@ -23,20 +23,20 @@ export abstract class GenericRepository<
   Create extends QueryDeepPartialEntity<Entity> = never,
   Update extends QueryDeepPartialEntity<Entity> = never,
 > {
-  constructor(
+  public constructor(
     private readonly entityClass: EntityTarget<Entity>,
     private readonly repository: Repository<Entity>,
     protected readonly notFoundStatus: ExceptionStatus,
   ) {}
 
-  findOne(
+  public findOne(
     options: FindOneOptions<Entity>,
     manager?: EntityManager,
   ): Promise<Entity | null> {
     return this.getRepo(manager).findOne(options);
   }
 
-  async findOneOrThrow(
+  public async findOneOrThrow(
     options: FindOneOptions<Entity>,
     manager?: EntityManager,
   ): Promise<Entity> {
@@ -47,7 +47,7 @@ export abstract class GenericRepository<
     throw this.notFound(options);
   }
 
-  async findOneOrCreate(
+  public async findOneOrCreate(
     options: FindOneOptions<Entity>,
     create: Create,
     manager?: EntityManager,
@@ -60,21 +60,21 @@ export abstract class GenericRepository<
     return this.findOneOrThrow(options, manager);
   }
 
-  findMany(
+  public findMany(
     options?: FindManyOptions<Entity>,
     manager?: EntityManager,
   ): Promise<Array<Entity>> {
     return this.getRepo(manager).find(options);
   }
 
-  exists(
+  public exists(
     options?: FindManyOptions<Entity>,
     manager?: EntityManager,
   ): Promise<boolean> {
     return this.getRepo(manager).exists(options);
   }
 
-  async existsOrThrow(
+  public async existsOrThrow(
     options?: FindManyOptions<Entity>,
     manager?: EntityManager,
   ): Promise<void> {
@@ -83,46 +83,46 @@ export abstract class GenericRepository<
     }
   }
 
-  count(
+  public count(
     options?: FindManyOptions<Entity>,
     manager?: EntityManager,
   ): Promise<number> {
     return this.getRepo(manager).count(options);
   }
 
-  async delete(
+  public async delete(
     criteria: Criteria<Entity>,
     manager?: EntityManager,
   ): Promise<void> {
     await this.getRepo(manager).delete(criteria);
   }
 
-  async softDelete(
+  public async softDelete(
     criteria: Criteria<Entity>,
     manager?: EntityManager,
   ): Promise<void> {
     await this.getRepo(manager).softDelete(criteria);
   }
 
-  async restore(
+  public async restore(
     criteria: Criteria<Entity>,
     manager?: EntityManager,
   ): Promise<void> {
     await this.getRepo(manager).restore(criteria);
   }
 
-  async insert(data: Create, manager?: EntityManager): Promise<string> {
+  public async insert(data: Create, manager?: EntityManager): Promise<string> {
     return getInsertedId(await this.getRepo(manager).insert(data));
   }
 
-  async bulkInsert(
+  public async bulkInsert(
     data: Array<Create>,
     manager?: EntityManager,
   ): Promise<Array<string>> {
     return getInsertedIds(await this.getRepo(manager).insert(data));
   }
 
-  async update(
+  public async update(
     criteria: Criteria<Entity>,
     data: Update,
     manager?: EntityManager,
@@ -130,7 +130,7 @@ export abstract class GenericRepository<
     await this.getRepo(manager).update(criteria, data);
   }
 
-  async upsert(
+  public async upsert(
     entity: QueryDeepPartialEntity<Entity>,
     conflictPaths: ConflictPaths<Entity>,
     manager?: EntityManager,
@@ -140,7 +140,7 @@ export abstract class GenericRepository<
     );
   }
 
-  async bulkUpsert(
+  public async bulkUpsert(
     entities: Array<QueryDeepPartialEntity<Entity>>,
     conflictPaths: ConflictPaths<Entity>,
     manager?: EntityManager,

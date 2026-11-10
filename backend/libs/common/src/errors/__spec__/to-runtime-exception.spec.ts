@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { exceptionStatus } from '../exception-status';
 import { ConflictException, ValidationException } from '../exceptions';
-import { toErrorDto } from '../to-error-dto';
 import { toRuntimeException } from '../to-runtime-exception';
 
 describe('toRuntimeException', () => {
@@ -22,11 +21,11 @@ describe('toRuntimeException', () => {
   ])('maps the HTTP status %s to %s', (status, code) => {
     const exception = toRuntimeException(new HttpException('x', status));
 
-    expect(toErrorDto(exception, 'id').code).toBe(code);
+    expect(exception.toErrorDto('id').code).toBe(code);
   });
 
   it('hides the message of unexpected errors', () => {
-    const dto = toErrorDto(toRuntimeException(new Error('secret')), 'id');
+    const dto = toRuntimeException(new Error('secret')).toErrorDto('id');
 
     expect(dto).toEqual({
       code: 'internalServer.internal',
@@ -41,7 +40,7 @@ describe('toRuntimeException', () => {
       { path: 'name', message: 'required' },
     ]);
 
-    expect(toErrorDto(exception, 'id').errors).toEqual([
+    expect(exception.toErrorDto('id').errors).toEqual([
       { path: 'name', message: 'required' },
     ]);
   });

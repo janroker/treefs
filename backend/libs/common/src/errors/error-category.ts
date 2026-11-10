@@ -6,7 +6,6 @@ export const errorCategory = {
   PAYLOAD_TOO_LARGE: 'payloadTooLarge',
   UNPROCESSABLE: 'unprocessable',
   TOO_MANY_REQUESTS: 'tooManyRequests',
-  SERVICE_UNAVAILABLE: 'serviceUnavailable',
   INTERNAL_SERVER: 'internalServer',
 } as const;
 

@@ -14,6 +14,7 @@ export default defineConfig([
   {
     files: ['apps/**/*.ts', 'libs/**/*.ts'],
     rules: {
+      '@typescript-eslint/explicit-member-accessibility': 'error',
       'no-restricted-properties': [
         'error',
         {

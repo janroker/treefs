@@ -4,7 +4,6 @@ export { InternalServerException } from './internal-server.exception';
 export { NotFoundException } from './not-found.exception';
 export { PayloadTooLargeException } from './payload-too-large.exception';
 export { RuntimeException } from './runtime.exception';
-export { ServiceUnavailableException } from './service-unavailable.exception';
 export { TooManyRequestsException } from './too-many-requests.exception';
 export { UnprocessableException } from './unprocessable.exception';
 export { ValidationException } from './validation.exception';

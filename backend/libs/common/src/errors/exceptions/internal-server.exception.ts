@@ -3,6 +3,6 @@ import { errorCategory } from '../error-category';
 import { RuntimeException } from './runtime.exception';
 
 export class InternalServerException extends RuntimeException {
-  readonly category = errorCategory.INTERNAL_SERVER;
-  readonly statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+  protected readonly category = errorCategory.INTERNAL_SERVER;
+  protected readonly statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
 }
