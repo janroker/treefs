@@ -17,7 +17,7 @@
     "start:debug": "pnpm --filter backend start:debug",
     "dev:web": "pnpm --filter web dev",
     "services": "docker compose up -d --wait db",
-    "lint": "eslint . --max-warnings 0",
+    "lint": "pnpm --filter web generate:types && eslint . --max-warnings 0",
     "typecheck": "pnpm -r typecheck",
     "knip": "knip",
     "test": "pnpm -r test",

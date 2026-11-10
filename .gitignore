@@ -16,3 +16,4 @@ coverage
 !.vscode/launch.json
 !.vscode/settings.json
 data/
+web/src/api/generated

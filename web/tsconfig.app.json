@@ -9,6 +9,10 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    "paths": {
+      "@app/common/*": ["./src/api/generated/libs/common/src/*"],
+      "@app/dto/*": ["./src/api/generated/libs/dto/src/*"]
+    },
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,

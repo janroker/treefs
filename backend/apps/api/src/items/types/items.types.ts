@@ -1,4 +1,4 @@
-import type { ItemType } from '@app/common/enums';
+import type { ItemType } from '@app/common/enums/item-type';
 import type { MatchMode } from '../enums';
 import type { Ancestor, ItemRow } from './items-repository.types';
 

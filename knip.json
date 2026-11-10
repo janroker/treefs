@@ -19,6 +19,8 @@
         "apps/api/src/types.ts": ["types"]
       }
     },
-    "web": {}
+    "web": {
+      "ignoreDependencies": ["zod"]
+    }
   }
 }
