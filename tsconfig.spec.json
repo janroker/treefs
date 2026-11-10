@@ -3,5 +3,10 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["apps/api/**/*", "libs/**/*"]
+  "include": [
+    "apps/api/**/*",
+    "libs/**/*",
+    "vitest.config.ts",
+    "vitest.config.e2e.ts"
+  ]
 }
