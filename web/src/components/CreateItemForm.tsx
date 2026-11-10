@@ -1,4 +1,9 @@
-import { type ReactNode, type SyntheticEvent, useState } from 'react';
+import {
+  type ReactNode,
+  type SyntheticEvent,
+  useEffect,
+  useState,
+} from 'react';
 import { useCreateItem } from '../api/items';
 import type { ItemType } from '../api/api.types';
 import type { FolderIdProps } from './components.types';
@@ -9,6 +14,9 @@ export function CreateItemForm({
   const [name, setName] = useState('');
   const [type, setType] = useState<ItemType>('folder');
   const create = useCreateItem();
+  const { reset } = create;
+
+  useEffect(() => reset(), [name, type, reset]);
 
   function submit(event: SyntheticEvent<HTMLFormElement>): void {
     event.preventDefault();

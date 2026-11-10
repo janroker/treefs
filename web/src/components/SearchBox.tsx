@@ -1,15 +1,14 @@
-import { type ReactNode, useState } from 'react';
-import { useSearch } from '../api/items';
-import type { MatchMode } from '../api/api.types';
-import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import type { ReactNode } from 'react';
+import { useSearchForm } from '../hooks/useSearchForm';
+import { useSearchQuery } from '../hooks/useSearchQuery';
 import type {
-  OpenFolderProps,
+  SearchBoxProps,
   SearchOptionsProps,
+  ScopeSelectProps,
   SearchResultsProps,
+  SearchScope,
   TypeFilter,
 } from './components.types';
-
-const DEBOUNCE_MS = 150;
 
 function SearchResults({
   items,
@@ -40,7 +39,26 @@ function SearchResults({
   );
 }
 
+function ScopeSelect({
+  scope,
+  onScope,
+}: Readonly<ScopeSelectProps>): ReactNode {
+  return (
+    <select
+      aria-label="Search in"
+      value={scope}
+      onChange={(event) => onScope(event.target.value as SearchScope)}
+    >
+      <option value="folder">This folder</option>
+      <option value="everywhere">Everywhere</option>
+    </select>
+  );
+}
+
 function SearchOptions({
+  insideFolder,
+  scope,
+  onScope,
   typeFilter,
   onTypeFilter,
   match,
@@ -48,6 +66,7 @@ function SearchOptions({
 }: Readonly<SearchOptionsProps>): ReactNode {
   return (
     <>
+      {insideFolder && <ScopeSelect scope={scope} onScope={onScope} />}
       <select
         aria-label="Search for"
         value={typeFilter}
@@ -71,17 +90,12 @@ function SearchOptions({
   );
 }
 
-export function SearchBox({ onOpen }: Readonly<OpenFolderProps>): ReactNode {
-  const [text, setText] = useState('');
-  const [focused, setFocused] = useState(false);
-  const [match, setMatch] = useState<MatchMode>('prefix');
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>('file');
-  const q = useDebouncedValue(text, DEBOUNCE_MS);
-  const enabled = match === 'prefix' ? focused || q !== '' : q !== '';
-  const search = useSearch(
-    { q, match, type: typeFilter === 'both' ? undefined : typeFilter },
-    enabled,
-  );
+export function SearchBox({
+  folderId,
+  onOpen,
+}: Readonly<SearchBoxProps>): ReactNode {
+  const form = useSearchForm();
+  const { enabled, result } = useSearchQuery(form, folderId);
 
   return (
     <section aria-label="Search" className="search">
@@ -89,24 +103,27 @@ export function SearchBox({ onOpen }: Readonly<OpenFolderProps>): ReactNode {
         <input
           aria-label="Search by name"
           placeholder={
-            match === 'prefix' ? 'Name starts with...' : 'Exact name'
+            form.match === 'prefix' ? 'Name starts with...' : 'Exact name'
           }
-          value={text}
-          onChange={(event) => setText(event.target.value)}
-          onFocus={() => setFocused(true)}
+          value={form.text}
+          onChange={(event) => form.setText(event.target.value)}
+          onFocus={() => form.setFocused(true)}
         />
         <SearchOptions
-          typeFilter={typeFilter}
-          onTypeFilter={setTypeFilter}
-          match={match}
-          onMatch={setMatch}
+          insideFolder={folderId !== null}
+          scope={form.scope}
+          onScope={form.setScope}
+          typeFilter={form.typeFilter}
+          onTypeFilter={form.setTypeFilter}
+          match={form.match}
+          onMatch={form.setMatch}
         />
       </div>
-      {search.isError && (
-        <p role="alert">Search failed: {search.error.message}</p>
+      {result.isError && (
+        <p role="alert">Search failed: {result.error.message}</p>
       )}
-      {enabled && search.data !== undefined && (
-        <SearchResults items={search.data.items} onOpen={onOpen} />
+      {enabled && result.data !== undefined && (
+        <SearchResults items={result.data.items} onOpen={onOpen} />
       )}
     </section>
   );

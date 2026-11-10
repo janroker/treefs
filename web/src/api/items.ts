@@ -65,7 +65,12 @@ export function useSearch(
     queryKey: ['items', 'search', params],
     queryFn: ({ signal }) =>
       apiRequest<ItemPage>(ITEMS_URL, {
-        query: { q: params.q, match: params.match, type: params.type },
+        query: {
+          q: params.q,
+          match: params.match,
+          type: params.type,
+          parentId: params.parentId,
+        },
         signal,
       }),
     enabled,

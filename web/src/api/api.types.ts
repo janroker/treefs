@@ -28,4 +28,5 @@ export type SearchParams = {
   q: string;
   match: MatchMode;
   type: ItemType | undefined;
+  parentId: string | undefined;
 };

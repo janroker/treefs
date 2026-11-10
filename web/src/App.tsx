@@ -19,7 +19,7 @@ export function App(): ReactNode {
   return (
     <main className="app">
       <h1>{APP_NAME}</h1>
-      <SearchBox onOpen={openFolder} />
+      <SearchBox folderId={folderId} onOpen={openFolder} />
       <Breadcrumbs folderId={folderId} onOpen={openFolder} />
       <CreateItemForm folderId={folderId} />
       <FolderView folderId={folderId} onOpen={openFolder} />
