@@ -36,5 +36,10 @@ export function useSearchQuery(
     },
     enabled,
   );
-  return { enabled, result };
+  return {
+    query: q,
+    items: result.data?.items ?? [],
+    open: form.focused && enabled && result.data !== undefined,
+    error: result.error,
+  };
 }

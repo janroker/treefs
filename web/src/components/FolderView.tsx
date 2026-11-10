@@ -1,19 +1,35 @@
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef } from 'react';
 import { useFolderItems } from '../api/items';
-import type { FolderViewProps, ItemRowProps } from './components.types';
+import type {
+  FolderViewProps,
+  ItemListProps,
+  ItemRowProps,
+} from './components.types';
 import { DeleteButton } from './DeleteButton';
 import { FolderLink } from './FolderLink';
 import { FileIcon, FolderIcon } from './Icons';
 
-function ItemRow({ item, onOpen }: Readonly<ItemRowProps>): ReactNode {
+function ItemRow({
+  item,
+  highlighted,
+  onOpen,
+}: Readonly<ItemRowProps>): ReactNode {
+  const rowRef = useRef<HTMLLIElement>(null);
   const isFolder = item.type === 'folder';
+
+  useEffect(() => {
+    if (highlighted) {
+      rowRef.current?.scrollIntoView({ block: 'center' });
+    }
+  }, [highlighted]);
+
   const name = (
     <span className="name" title={item.name}>
       {item.name}
     </span>
   );
   return (
-    <li className="item">
+    <li ref={rowRef} className={highlighted ? 'item highlighted' : 'item'}>
       {isFolder ? <FolderIcon /> : <FileIcon />}
       {isFolder ? (
         <FolderLink folderId={item.id} onOpen={onOpen}>
@@ -27,8 +43,31 @@ function ItemRow({ item, onOpen }: Readonly<ItemRowProps>): ReactNode {
   );
 }
 
+function ItemList({
+  items,
+  highlightedId,
+  onOpen,
+}: Readonly<ItemListProps>): ReactNode {
+  if (items.length === 0) {
+    return <p className="empty">This folder is empty.</p>;
+  }
+  return (
+    <ul className="items">
+      {items.map((item) => (
+        <ItemRow
+          key={item.id}
+          item={item}
+          highlighted={item.id === highlightedId}
+          onOpen={onOpen}
+        />
+      ))}
+    </ul>
+  );
+}
+
 export function FolderView({
   folderId,
+  highlightedId,
   onOpen,
 }: Readonly<FolderViewProps>): ReactNode {
   const folder = useFolderItems(folderId);
@@ -41,18 +80,13 @@ export function FolderView({
       <p role="alert">Could not load this folder: {folder.error.message}</p>
     );
   }
-  const items = folder.data.pages.flatMap((page) => page.items);
   return (
     <section aria-label="Folder contents">
-      {items.length === 0 ? (
-        <p className="empty">This folder is empty.</p>
-      ) : (
-        <ul className="items">
-          {items.map((item) => (
-            <ItemRow key={item.id} item={item} onOpen={onOpen} />
-          ))}
-        </ul>
-      )}
+      <ItemList
+        items={folder.data.pages.flatMap((page) => page.items)}
+        highlightedId={highlightedId}
+        onOpen={onOpen}
+      />
       {folder.hasNextPage ? (
         <button
           type="button"
