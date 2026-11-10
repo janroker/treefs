@@ -32,10 +32,10 @@ Compose and the fan-out scripts. Put a setting at the narrowest level that needs
 
 ```sh
 pnpm check         # prettier, eslint, typecheck, knip, unit and e2e tests: must pass before every commit
-PORT=3001 pnpm start:dev   # API with watch; port 3001 so it does not clash with the web dev server
+pnpm start:dev     # API with watch on :3001 (the default PORT; the web dev server uses :3000)
 pnpm start:debug   # API with the debugger on 9229
 pnpm dev:web       # Vite on :3000, proxies /api to :3001
-pnpm test          # unit tests (*.spec.ts)
+pnpm test          # unit tests of both packages (*.spec.ts)
 pnpm test:e2e      # integration tests (*.e2e-spec.ts), need Postgres
 ```
 

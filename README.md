@@ -1,132 +1,135 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# treefs
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+File tree metadata service: create folders and files, browse, search by exact name, typeahead by prefix, delete
+a whole subtree. Metadata only, no file contents.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- **API:** NestJS, REST under `/api`
+- **Web:** Vite, React, TanStack Query
+- **Store:** PostgreSQL is the source of truth
+- **Scope:** time-boxed take-home. Every feature is built; the expensive proof is cut and listed in
+  [Trade-offs](#trade-offs-and-what-i-skipped)
 
-## Description
+## Architecture
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ pnpm install
+```mermaid
+flowchart LR
+  web["web<br/>Vite + React"] -- "/api (proxy)" --> api
+  subgraph backend
+    api["apps/api<br/>controller → service → repository"]
+    common["libs/common<br/>exceptions, pagination, DTOs"]
+    config["libs/config<br/>validated env"]
+    database["libs/database<br/>entities, migrations, transactions"]
+    api --> common
+    api --> config
+    api --> database
+  end
+  database --> pg[("PostgreSQL")]
 ```
 
-## Compile and run the project
+| Path               | Role                                                      |
+| ------------------ | --------------------------------------------------------- |
+| `backend/apps/api` | HTTP API, one module per domain (`items`)                 |
+| `backend/libs/*`   | `common`, `config`, `database`, `dto`                     |
+| `web`              | single-page app, API types generated at build time        |
+| repo root          | Prettier, commitlint, husky, knip, shared tsconfig/ESLint |
 
-```bash
-# development
-$ pnpm run start
+## Run it
 
-# watch mode
-$ pnpm run start:dev
+Needs Node 24.2+, pnpm (corepack) and Docker for Postgres.
 
-# production mode
-$ pnpm run start:prod
+```sh
+corepack enable
+pnpm install
+cp backend/apps/api/.env.example backend/apps/api/.env
+cp backend/apps/api/.env.test.example backend/apps/api/.env.test
+pnpm services      # Postgres via docker compose
+pnpm db:migrate
+pnpm start:dev     # API  :3001
+pnpm dev:web       # web  :3000, proxies /api
 ```
 
-## Run tests
+- **Debug:** `pnpm start:debug` (inspector on 9229), then "Attach to API" in `.vscode/launch.json`
+- **Production build:** `pnpm build` → `node backend/dist/apps/api/main.js`; `pnpm --filter web build` → `web/dist`
+- **Dev container:** set `DB_HOST=host.docker.internal` in both `.env` files
+- **Config:** no defaults in code; a missing or bad variable stops startup
 
-```bash
-# unit tests
-$ pnpm run test
+## Checks and tests
 
-# e2e tests
-$ pnpm run test:e2e
+| Command         | Runs                                                                    |
+| --------------- | ----------------------------------------------------------------------- |
+| `pnpm check`    | prettier, eslint, typecheck, knip, all tests                            |
+| `pnpm test`     | unit tests (`*.spec.ts`), pure functions only                           |
+| `pnpm test:e2e` | integration tests (`*.e2e-spec.ts`), real app over HTTP + real Postgres |
 
-# test coverage
-$ pnpm run test:cov
+- **No mocks in the data path:** a mock cannot enforce a unique index
+- **Covered:** every status code, 50-way race on one name (one 201), create racing delete of its parent,
+  parallel deletes, cursor paging, 64-level paths, adversarial names
+- **Isolation:** each suite declares its tables and truncates them; helpers refuse a database not ending in `_test`
+- **Hooks:** pre-commit (prettier, eslint), commit-msg (commitlint), pre-push (`pnpm check`)
+- **Web:** no tests
+
+## API
+
+| Request                                                              | Success                            | Errors                                                         |
+| -------------------------------------------------------------------- | ---------------------------------- | -------------------------------------------------------------- |
+| `POST /api/v1/items` `{type, name, parentId\|null}`                  | 201 + `Location`                   | 400 · 404 parent · 409 name · 422 parent is a file or too deep |
+| `GET /api/v1/items/{id}`                                             | 200 item + `path`, `ancestors`     | 400 · 404                                                      |
+| `GET /api/v1/items?parentId=root\|{id}&type&limit&cursor`            | 200 `{items, nextCursor}`, by name | 400 · 404 · 422 not a folder                                   |
+| `GET /api/v1/items?q&match=exact\|prefix&type&parentId&limit&cursor` | 200 `{items, nextCursor}`          | 400                                                            |
+| `DELETE /api/v1/items/{id}`                                          | 204, no body, deletes the subtree  | 400 · 404                                                      |
+
+- **Error body:** `{code, message, statusCode, correlationId, errors?}`, `code` is `<category>.<status>`
+  (`conflict.nameTaken`); `x-request-id` carries the correlation id
+- **Exact search:** with `parentId` the folder's direct children, without it every folder
+- **Prefix search (typeahead):** top 10, newest first, empty `q` lists the newest items
+
+## Design
+
+```mermaid
+flowchart TD
+  req[request] --> ctl["controller<br/>validate input"]
+  ctl --> svc["service<br/>use case, transaction"]
+  svc --> repo["repository<br/>query builder, one raw SQL"]
+  repo --> db[("item table<br/>constraints enforce the rules")]
+  svc -- raw entities --> ctl
+  ctl -- "interceptor: transform + validate" --> res[out-DTO]
 ```
 
-## Deployment
+- **The database enforces the rules.** Insert first, map the SQLSTATE; never check-then-insert
+  - unique `lower(normalize(name, NFC))` per folder, top level included (`NULLS NOT DISTINCT` index)
+  - parent must be a folder, name ≤ 255 bytes, depth ≤ 64 (a folder at depth 64 may exist and stays empty)
+  - `ON DELETE CASCADE` removes a subtree in one `DELETE`
+- **Every read is an index range with a LIMIT:** keyset paging, prefix search as a range (no `LIKE`)
+- **Paths are computed at read time** by one recursive query per page; nothing stored can go stale
+- **Types flow one way:** `src/types.ts` names every endpoint's body, params and response; the web app
+  gets them generated and never imports a schema
+- **Migrations** are generated from the entities (`pnpm --filter backend migration:generate`) and run on demand
+  with `pnpm db:migrate`
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Trade-offs and what I skipped
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+- **Typeahead worst case:** newest-first is not index-ordered; a prefix with thousands of old matches walks the
+  primary key (~100 ms at 10^6 rows). Next: cap candidates by name, or a search index
+- **Load testing:** no k6 at 10^5 to 10^7 rows; EXPLAIN shows index ranges with a LIMIT. Next: chart p95 vs size
+- **Failure tests:** no forced serialization failures, connection kills mid-delete, SIGTERM under load.
+  Constraints and single-statement writes make them hold by construction
+- **Idempotent retries:** a create retried after a timeout may return 409. Next: `Idempotency-Key` stored in the
+  insert's transaction
+- **Large deletes are synchronous:** one transaction locks the subtree; a huge folder hits the statement timeout
+  and returns 500. Next: soft delete plus background purge
+- **Database outage:** answers 500, there is no 503 mapping or `Retry-After`
+- **Web trusts the API:** types are generated, responses are not validated at runtime
+- **Left out:** health checks, rate limits, helmet, CORS allowlist, body limit, separate DB roles, CSP
+- **Delivery:** no CI job (the pre-push hook runs `pnpm check`), no Dockerfiles for the app
+- **Tests:** no property-based or Playwright tests; integration files run serially on one test database
+- **Out of scope:** auth, sharing, rename/move, file contents, visit-based suggestions, fuzzy search
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
-```
+## Scaling
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+PgBouncer and read replicas → soft delete with batched purge → shard by `parent_id` (siblings stay together, so
+unique names still hold) → search index fed from Postgres for typeahead.
 
-## Observability
+## AI usage
 
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-To add it to this project, run this and approve the code it prints at [observe.nestjs.com/link](https://observe.nestjs.com/link) - signing up for free if you have no account:
-
-```bash
-$ npx @nestjs/observe link
-```
-
-It installs `@nestjs/observe`, wires it into `AppModule` and `main.ts`, and writes the app key and secret into `.env`, which every `nest start` script (`start`, `start:dev`, `start:debug`) then loads. In production, set `OBSERVE_APP_KEY` and `OBSERVE_APP_SECRET` in the environment instead.
-
-Or do it by hand:
-
-```bash
-$ pnpm install @nestjs/observe
-```
-
-Then follow the [setup guide](https://docs.nestjs.com/observability/sdk) - it takes a single import and an app key.
-
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Claude Code wrote much of the code and tests in small reviewed commits; design decisions, trade-offs and cuts are
+mine. `backend/AGENTS.md` (Nest CLI) and `CLAUDE.md` hold the rules the code follows.
