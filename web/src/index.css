@@ -469,3 +469,44 @@ input[type='checkbox'] {
   flex: none;
   white-space: pre;
 }
+
+.crumb-menu {
+  position: relative;
+}
+
+.crumb-menu summary {
+  cursor: pointer;
+  color: var(--muted);
+  list-style: none;
+}
+
+.crumb-menu ul {
+  position: absolute;
+  z-index: 10;
+  min-width: 12rem;
+  margin: 4px 0 0;
+  padding: 4px 8px;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+}
+
+.crumb-menu li::before {
+  content: none;
+}
+
+.crumb-menu .link {
+  display: block;
+  padding: 2px 0;
+}
+
+.breadcrumbs > li {
+  display: flex;
+  align-items: center;
+}
+
+.crumb-menu {
+  display: inline-block;
+}

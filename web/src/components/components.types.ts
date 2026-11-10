@@ -149,8 +149,15 @@ export type NewItemRowProps = FolderIdProps & {
 };
 
 export type NewItemButtonsProps = {
+  disabledReason: string | null;
   onCreate: (type: ItemType) => void;
 };
+
+type Crumb = { id: FolderId; name: string };
+
+export type CrumbProps = OpenFolderProps & { crumb: Crumb };
+
+export type CrumbMenuProps = OpenFolderProps & { crumbs: Array<Crumb> };
 
 export type SearchInputProps = {
   form: SearchForm;
@@ -186,3 +193,7 @@ export type LoadMoreProps = {
 export type ItemNameProps = {
   name: string;
 };
+
+export type ToolbarProps = FolderIdProps &
+  OpenFolderProps &
+  Pick<NewItemButtonsProps, 'onCreate'>;

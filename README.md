@@ -15,7 +15,7 @@ a whole subtree. Metadata only, no file contents.
 flowchart LR
   web["web<br/>Vite + React"] -- "/api (proxy)" --> api
   subgraph backend
-    api["apps/api<br/>controller → service → repository"]
+    api["apps/api<br/>controller -> service -> repository"]
     common["libs/common<br/>exceptions, pagination, DTOs"]
     config["libs/config<br/>validated env"]
     database["libs/database<br/>entities, migrations, transactions"]
@@ -51,7 +51,7 @@ pnpm dev:web       # web  :3000, proxies /api
 - **One command:** `docker compose up --build` builds the API and web images, starts Postgres, migrates on API
   start and serves the app on http://localhost:3000 (nginx forwards `/api` to the API)
 - **Debug:** `pnpm start:debug` (inspector on 9229), then "Attach to API" in `.vscode/launch.json`
-- **Production build:** `pnpm build` → `node backend/dist/apps/api/main.js`; `pnpm --filter web build` → `web/dist`
+- **Production build:** `pnpm build` -> `node backend/dist/apps/api/main.js`; `pnpm --filter web build` -> `web/dist`
 - **Dev container:** set `DB_HOST=host.docker.internal` in both `.env` files
 - **Config:** no defaults in code; a missing or bad variable stops startup
 
@@ -128,8 +128,8 @@ flowchart TD
 
 ## Scaling
 
-PgBouncer and read replicas → soft delete with batched purge → shard by `parent_id` (siblings stay together, so
-unique names still hold) → search index fed from Postgres for typeahead.
+PgBouncer and read replicas -> soft delete with batched purge -> shard by `parent_id` (siblings stay together, so
+unique names still hold) -> search index fed from Postgres for typeahead.
 
 ## AI usage
 

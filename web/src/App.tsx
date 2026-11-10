@@ -1,9 +1,8 @@
 import type { ReactNode } from 'react';
 import { useItemDetail } from './api/items';
-import { Breadcrumbs } from './components/Breadcrumbs';
 import { FolderView } from './components/FolderView';
-import { NewItemButtons } from './components/NewItemButtons';
 import { SearchBox } from './components/SearchBox';
+import { Toolbar } from './components/Toolbar';
 import { useBrowser } from './hooks/useBrowser';
 import { useDocumentTitle } from './hooks/useDocumentTitle';
 
@@ -25,10 +24,11 @@ export function App(): ReactNode {
         </div>
       </header>
       <main className="content">
-        <div className="toolbar">
-          <Breadcrumbs folderId={browser.folderId} onOpen={browser.open} />
-          <NewItemButtons onCreate={browser.startCreate} />
-        </div>
+        <Toolbar
+          folderId={browser.folderId}
+          onOpen={browser.open}
+          onCreate={browser.startCreate}
+        />
         <FolderView
           folderId={browser.folderId}
           focus={browser.focus}

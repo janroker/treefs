@@ -62,7 +62,7 @@ pnpm test:e2e      # integration tests (*.e2e-spec.ts), need Postgres
 
 ## API rules
 
-- Layers: controller (HTTP only) → service (use case, transaction) → repository. Every repository extends
+- Layers: controller (HTTP only) -> service (use case, transaction) -> repository. Every repository extends
   `GenericRepository` from `@app/database`; hot queries that TypeORM cannot express are raw SQL inside the
   repository.
 - Errors: services throw `RuntimeException` subclasses from `@app/common` (`NotFoundException`,
