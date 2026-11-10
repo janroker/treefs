@@ -1,6 +1,7 @@
 import type { CreateItem } from '@app/database/entities';
 import type { CreateItemDto, ListItemsQueryDto } from './items-in.dto';
-import type { ListItemsQuery } from '../../types';
+import { ROOT } from '../../constants';
+import type { ListItemsQuery, SearchItemsQuery } from '../../types';
 
 export function toCreateItem(
   dto: CreateItemDto,
@@ -16,7 +17,20 @@ export function toCreateItem(
 
 export function toListQuery(dto: ListItemsQueryDto): ListItemsQuery {
   return {
-    parentId: dto.parentId,
+    parentId: dto.parentId ?? ROOT,
+    type: dto.type ?? null,
+    limit: dto.limit ?? null,
+    cursor: dto.cursor ?? null,
+  };
+}
+
+export function toSearchQuery(
+  dto: ListItemsQueryDto & { q: string },
+): SearchItemsQuery {
+  return {
+    q: dto.q,
+    match: dto.match,
+    parentId: dto.parentId ?? null,
     type: dto.type ?? null,
     limit: dto.limit ?? null,
     cursor: dto.cursor ?? null,

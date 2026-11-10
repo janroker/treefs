@@ -19,4 +19,6 @@ export type GetItemResponse = ItemDetailDto;
 export type ListItemsQueryParams = ListItemsQueryDto;
 export type ListItemsResponse = ItemPageDto;
 
+export type DeleteItemPathParams = { id: ItemIdDto };
+
 export type ErrorResponse = ErrorDto;

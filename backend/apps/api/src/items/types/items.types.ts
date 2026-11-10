@@ -1,4 +1,5 @@
 import type { ItemType } from '@app/common/enums';
+import type { MatchMode } from '../enums';
 import type { Ancestor, ItemRow } from './items-repository.types';
 
 export type ListItemsQuery = {
@@ -11,4 +12,13 @@ export type ListItemsQuery = {
 export type ItemWithAncestors = {
   item: ItemRow;
   ancestors: Array<Ancestor>;
+};
+
+export type SearchItemsQuery = {
+  q: string;
+  match: MatchMode;
+  parentId: string | null;
+  type: ItemType | null;
+  limit: number | null;
+  cursor: string | null;
 };

@@ -3,7 +3,9 @@ import { type Page } from '@app/common/pagination';
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Query,
@@ -25,12 +27,14 @@ import {
   toItemPageDto,
   toItemWithPathDto,
   toListQuery,
+  toSearchQuery,
 } from '../dto';
 import { ApiExceptionFilter } from '../../errors/api-exception.filter';
 import { validationPipe } from '../../errors/validation';
 import { ItemsService } from '../services';
 import type {
   CreateItemBody,
+  DeleteItemPathParams,
   GetItemPathParams,
   ListItemsQueryParams,
 } from '../../types';
@@ -73,6 +77,17 @@ export class ItemsController {
   public list(
     @Query({ schema: listItemsQuerySchema }) query: ListItemsQueryParams,
   ): Promise<Page<ItemWithAncestors>> {
+    if (query.q !== undefined) {
+      return this.items.search(toSearchQuery({ ...query, q: query.q }));
+    }
     return this.items.list(toListQuery(query));
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  public async delete(
+    @Param('id', { schema: itemIdSchema }) id: DeleteItemPathParams['id'],
+  ): Promise<void> {
+    await this.items.delete(id);
   }
 }

@@ -11,11 +11,22 @@ import { runInTransaction } from '@app/database/transaction';
 import { sqlState, sqlStateOf } from '@app/database/postgres-error';
 import { Injectable } from '@nestjs/common';
 import { DataSource, type EntityManager } from 'typeorm';
-import { DEFAULT_LIST_LIMIT, ROOT } from '../constants';
+import {
+  DEFAULT_EXACT_LIMIT,
+  DEFAULT_LIST_LIMIT,
+  DEFAULT_PREFIX_LIMIT,
+  ROOT,
+} from '../constants';
 import { type CreateItemDto, toCreateItem } from '../dto';
+import { matchMode } from '../enums';
 import { ItemsRepository } from '../repositories';
-import { nameCursorSchema } from '../schemas';
-import type { ItemRow, ItemWithAncestors, ListItemsQuery } from '../types';
+import { idCursorSchema, nameCursorSchema } from '../schemas';
+import type {
+  ItemRow,
+  ItemWithAncestors,
+  ListItemsQuery,
+  SearchItemsQuery,
+} from '../types';
 
 @Injectable()
 export class ItemsService {
@@ -55,6 +66,36 @@ export class ItemsService {
       items: await this.withAncestors(page.items),
       nextCursor: page.nextCursor,
     };
+  }
+
+  public async search(
+    query: SearchItemsQuery,
+  ): Promise<Page<ItemWithAncestors>> {
+    const folder =
+      query.parentId === null
+        ? undefined
+        : await this.folderOrRoot(query.parentId);
+    if (query.match === matchMode.PREFIX) {
+      return this.searchPrefix(query, folder);
+    }
+    if (folder !== undefined) {
+      const rows = await this.repository.findByNameInFolder(
+        folder,
+        query.q,
+        query.type,
+      );
+      return { items: await this.withAncestors(rows), nextCursor: null };
+    }
+    return this.searchExactEverywhere(query);
+  }
+
+  public async delete(id: string): Promise<void> {
+    if (!(await this.repository.deleteSubtree(id))) {
+      throw new NotFoundException(
+        `Item ${id} does not exist`,
+        exceptionStatus.ITEM_NOT_FOUND,
+      );
+    }
   }
 
   private static assertDepthAvailable(parent: ItemRow | null): void {
@@ -129,6 +170,44 @@ export class ItemsService {
         throw error;
       });
     return this.repository.findOneOrThrow({ where: { id } }, manager);
+  }
+
+  private async searchExactEverywhere(
+    query: SearchItemsQuery,
+  ): Promise<Page<ItemWithAncestors>> {
+    const limit = query.limit ?? DEFAULT_EXACT_LIMIT;
+    const after = decodeCursor(query.cursor, idCursorSchema);
+    const rows = await this.repository.findByName({
+      name: query.q,
+      type: query.type,
+      limit: limit + 1,
+      afterId: after?.id ?? null,
+    });
+    const page = toPage(rows, limit, (last) => ({ id: last.id }));
+    return {
+      items: await this.withAncestors(page.items),
+      nextCursor: page.nextCursor,
+    };
+  }
+
+  private async searchPrefix(
+    query: SearchItemsQuery,
+    folder: string | null | undefined,
+  ): Promise<Page<ItemWithAncestors>> {
+    const limit = query.limit ?? DEFAULT_PREFIX_LIMIT;
+    const before = decodeCursor(query.cursor, idCursorSchema);
+    const rows = await this.repository.findByPrefix({
+      prefix: query.q,
+      type: query.type,
+      parentId: folder,
+      limit: limit + 1,
+      beforeId: before?.id ?? null,
+    });
+    const page = toPage(rows, limit, (last) => ({ id: last.id }));
+    return {
+      items: await this.withAncestors(page.items),
+      nextCursor: page.nextCursor,
+    };
   }
 
   private async withAncestorsOf(item: ItemRow): Promise<ItemWithAncestors> {

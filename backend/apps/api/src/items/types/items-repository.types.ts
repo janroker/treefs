@@ -23,3 +23,14 @@ export type ChildrenQuery = Filters & {
   parentId: string | null;
   afterNameKey: string | null;
 };
+
+export type NameQuery = Filters & {
+  name: string;
+  afterId: string | null;
+};
+
+export type PrefixQuery = Filters & {
+  prefix: string;
+  parentId: string | null | undefined;
+  beforeId: string | null;
+};
