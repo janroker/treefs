@@ -47,18 +47,45 @@ pnpm test:e2e      # integration tests (*.e2e-spec.ts), need Postgres
 - Early returns. No `else` after `return`, no nested ternaries, max nesting depth 3.
 - Small units: complexity ≤ 8, cognitive complexity ≤ 10, functions ≤ 40 lines, ≤ 3 parameters (more become one
   object), files ≤ 250 lines. ESLint enforces these as errors.
-- No TypeScript enums. Use an `as const` object named in camelCase with camelCase keys and values, and derive a PascalCase type from it:
+- No TypeScript enums. Use an `as const` object named in camelCase with UPPER_SNAKE_CASE keys and camelCase string
+  values, and derive a PascalCase type with the same name:
   ```ts
-  export const itemType = { file: 'file', folder: 'folder' } as const;
+  export const itemType = { FILE: 'file', FOLDER: 'folder' } as const;
   export type ItemType = (typeof itemType)[keyof typeof itemType];
   ```
+- Prefer `type` over `interface`; use an interface only when it is strictly necessary (declaration merging).
+  Write arrays as `Array<string>`, not `string[]`.
+- Prefer `| null` over `?:` for an absent value in our own types; use `?:` only where absent and `null` differ
+  (query parameters, request bodies). `exactOptionalPropertyTypes` is on, so `x?: T` never accepts `undefined`.
 - Named exports only (config files excepted).
 - Relative imports have no file extension (`moduleResolution: bundler`), not `.js` as `backend/AGENTS.md` says.
 
 ## API rules
 
-- Layers: controller (HTTP only) → service (use case, transaction) → repository (SQL). Services throw domain
-  errors; one exception filter maps them to RFC 9457 problem+json.
+- Layers: controller (HTTP only) → service (use case, transaction) → repository. Every repository extends
+  `GenericRepository` from `@app/database`; hot queries that TypeORM cannot express are raw SQL inside the
+  repository.
+- Errors: services throw `RuntimeException` subclasses from `@app/common` (`NotFoundException`,
+  `ConflictException`, ...) with an `exceptionStatus` value such as `ITEM_NOT_FOUND = 'itemNotFound'`. Each API
+  registers one filter that extends `RuntimeExceptionFilter` and answers an `ErrorDto`:
+  `{ code: '<category>.<status>', message, statusCode, correlationId }`. The API's filter and the validation pipe
+  are registered on the controllers (`@UseFilters`, `@UsePipes`), never globally; one global
+  `RuntimeExceptionFilter` answers what never reaches a controller (unknown routes, body parser errors).
+- A module groups its code in folders per kind (`constants`, `types`, `services`, `repositories`, `controllers`,
+  `dto`), each with an `index.ts` of named exports. Files are named `<domain>.<kind>.ts` or `<domain>-<kind>.ts`
+  (`items.constants.ts`, `items-repository.types.ts`); import a folder through its barrel, a lib through its
+  folder (`@app/dto/item`).
+- DTOs live next to their controller: `dto/index.ts` re-exports `in` and `out`. Each of those holds one
+  `<domain>-in.dto.ts` (or `-out.dto.ts`) with every zod schema and DTO type of the module, one
+  `<domain>-in.transformers.ts`, and an `index.ts` with named exports for the DTOs and schemas plus `export *` of
+  the transformers. In-schemas are strict (unknown keys are rejected); `src/types.ts` imports the `*.dto.ts` files
+  directly, so the generated web types never reach a transformer. Transformers turn in-DTOs
+  into the `Create<Entity>` and `Update<Entity>` types of the entity layer, and entities into out-DTOs. Out-DTOs
+  that represent an entity live in `libs/dto` and are derived with `pick`, `omit` and `extend`.
+- Each entity has a `types/<entity>.types.ts` next to it with `Create<Entity>` (and `Update<Entity>`) types.
+- Each API has a `src/types.ts` that names the body, path params, query params and response of every endpoint
+  (`CreateItemBody`, `CreateItemResponse`, ...). Controllers use those types, and the web app gets them
+  generated.
 - The database enforces invariants (unique names, parent must be a folder, depth cap). Insert first and map the
   SQLSTATE; never check-then-insert.
 - Migrations are hand-written SQL in TypeORM migration classes.

@@ -64,6 +64,8 @@ export const baseConfig = [
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
       '@typescript-eslint/explicit-module-boundary-types': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
+      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+      '@typescript-eslint/array-type': ['error', { default: 'generic' }],
       '@typescript-eslint/no-confusing-void-expression': [
         'error',
         { ignoreArrowShorthand: true },

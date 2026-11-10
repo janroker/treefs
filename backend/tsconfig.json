@@ -19,7 +19,9 @@
     "types": ["vitest/globals", "node"],
     "paths": {
       "@app/config": ["./libs/config/src/index.ts"],
-      "@app/config/*": ["./libs/config/src/*"]
+      "@app/config/*": ["./libs/config/src/*"],
+      "@app/common": ["./libs/common/src/index.ts"],
+      "@app/common/*": ["./libs/common/src/*"]
     }
   },
   "files": [],
