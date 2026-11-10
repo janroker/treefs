@@ -25,7 +25,11 @@ export default defineConfig([
     },
   },
   {
-    files: ['libs/config/**/*.ts'],
+    files: ['libs/config/**/*.ts', '**/__spec__/**/*.ts'],
     rules: { 'no-restricted-properties': 'off' },
+  },
+  {
+    files: ['libs/database/src/migrations/*.ts'],
+    rules: { 'max-lines-per-function': 'off' },
   },
 ]);

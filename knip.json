@@ -6,7 +6,12 @@
       "project": ["*.js"]
     },
     "backend": {
-      "entry": ["apps/api/src/main.ts", "libs/*/src/index.ts"],
+      "entry": [
+        "apps/api/src/main.ts",
+        "libs/*/src/index.ts",
+        "libs/database/src/data-source.ts",
+        "libs/database/src/migrations/*.ts"
+      ],
       "project": ["apps/**/*.ts", "libs/**/*.ts"],
       "ignoreDependencies": [
         "@nestjs/mau",

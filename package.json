@@ -22,7 +22,8 @@
     "knip": "knip",
     "test": "pnpm -r test",
     "test:e2e": "pnpm --filter backend test:e2e",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm knip && pnpm test && pnpm test:e2e"
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm knip && pnpm test && pnpm test:e2e",
+    "db:migrate": "pnpm --filter backend migration:run"
   },
   "lint-staged": {
     "*.{ts,tsx,js}": [
@@ -46,6 +47,8 @@
     "knip": "^6.44.2",
     "lint-staged": "^17.6.0",
     "prettier": "^3.4.2",
+    "prettier-plugin-embed": "^0.8.2",
+    "prettier-plugin-sql": "^0.20.0",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.72.1"
   }

@@ -7,6 +7,8 @@ export default defineConfig({
     globals: true,
     root: './',
     include: ['{apps,libs}/**/__spec__/**/*.e2e-spec.ts'],
+    globalSetup: ['libs/database/src/__spec__/support/global-setup.ts'],
+    fileParallelism: false,
     env: testEnv,
   },
 });

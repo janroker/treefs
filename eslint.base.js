@@ -72,7 +72,7 @@ export const baseConfig = [
       ],
 
       'no-console': 'error',
-      'no-inline-comments': 'error',
+      'no-inline-comments': ['error', { ignorePattern: '^ sql $' }],
       'no-warning-comments': 'error',
       'unicorn/prefer-node-protocol': 'error',
       'unicorn/throw-new-error': 'error',

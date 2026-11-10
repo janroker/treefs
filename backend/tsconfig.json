@@ -21,7 +21,9 @@
       "@app/config": ["./libs/config/src/index.ts"],
       "@app/config/*": ["./libs/config/src/*"],
       "@app/common": ["./libs/common/src/index.ts"],
-      "@app/common/*": ["./libs/common/src/*"]
+      "@app/common/*": ["./libs/common/src/*"],
+      "@app/database": ["./libs/database/src/index.ts"],
+      "@app/database/*": ["./libs/database/src/*"]
     }
   },
   "files": [],

@@ -88,7 +88,13 @@ pnpm test:e2e      # integration tests (*.e2e-spec.ts), need Postgres
   generated.
 - The database enforces invariants (unique names, parent must be a folder, depth cap). Insert first and map the
   SQLSTATE; never check-then-insert.
-- Migrations are hand-written SQL in TypeORM migration classes.
+- The schema is defined by TypeORM entities in `libs/database/src/entities`. Generate migrations from them with
+  `pnpm --filter backend migration:generate` and apply them with `pnpm db:migrate` (TypeORM CLI). Hand-write SQL
+  only for what TypeORM cannot express (for example a `NULLS NOT DISTINCT` index): add it to the generated
+  migration and declare the index on the entity with `synchronize: false`. Prefix every query of a new migration
+  with `/* sql */` and run `pnpm exec eslint --fix` and `pnpm exec prettier --write` on it: the first turns the
+  generated imports into type imports, the second formats the SQL. To drop a column, change the entity, generate, and
+  do not write the migration by hand.
 - Delete is one `DELETE`; `ON DELETE CASCADE` removes the subtree. No ORM cascades, no `.remove()`.
 - No `eager` or `lazy` relations: load relations explicitly in the query.
 - Transactions only through `runInTransaction`; nothing but database work inside it (it may retry).
