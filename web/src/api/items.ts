@@ -33,14 +33,20 @@ const itemKeys = {
 
 export function useFolderItems(
   folderId: FolderId,
+  filterName: string | null,
 ): UseInfiniteQueryResult<InfiniteData<ItemPage>> {
   return useInfiniteQuery({
-    queryKey: itemKeys.folder(folderId),
+    queryKey:
+      filterName === null
+        ? itemKeys.folder(folderId)
+        : [...itemKeys.folder(folderId), filterName],
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam, signal }) =>
       apiRequest<ItemPage>(ITEMS_URL, {
         query: {
           parentId: folderId ?? ROOT,
+          q: filterName ?? undefined,
+          match: filterName === null ? undefined : 'exact',
           limit: PAGE_SIZE,
           cursor: pageParam,
         },

@@ -36,6 +36,9 @@ export function App(): ReactNode {
           onCreated={browser.created}
           onCreateCancel={browser.cancelCreate}
           onFocusItem={browser.focusItem}
+          filterName={browser.filterName}
+          onShowOnly={browser.showOnly}
+          onClearFilter={browser.clearFilter}
           onOpen={browser.open}
         />
       </main>

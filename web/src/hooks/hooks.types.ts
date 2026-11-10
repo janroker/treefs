@@ -84,5 +84,8 @@ export type Browser = {
   startCreate: (type: ItemType) => void;
   cancelCreate: () => void;
   created: (item: Item) => void;
-  focusItem: (id: string) => void;
+  focusItem: (item: Item) => void;
+  filterName: string | null;
+  showOnly: (name: string) => void;
+  clearFilter: () => void;
 };

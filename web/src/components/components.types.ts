@@ -1,5 +1,15 @@
+import type {
+  InfiniteData,
+  UseInfiniteQueryResult,
+} from '@tanstack/react-query';
 import type { KeyboardEvent, ReactNode, RefObject } from 'react';
-import type { FolderId, Item, ItemType, MatchMode } from '../api/api.types';
+import type {
+  FolderId,
+  Item,
+  ItemPage,
+  ItemType,
+  MatchMode,
+} from '../api/api.types';
 import type {
   SearchForm,
   SearchNavigation,
@@ -16,7 +26,7 @@ type FolderIdProps = {
 
 export type BreadcrumbsProps = FolderIdProps & OpenFolderProps;
 
-export type RowFocus = { id: string; flash: boolean };
+export type RowFocus = { id: string; name: string; flash: boolean };
 
 type CreateProps = {
   creating: ItemType | null;
@@ -26,13 +36,24 @@ type CreateProps = {
 
 type FocusProps = {
   focus: RowFocus | null;
-  onFocusItem: (id: string) => void;
+  onFocusItem: (item: Item) => void;
+};
+
+type FilterProps = {
+  filterName: string | null;
+  onShowOnly: (name: string) => void;
+  onClearFilter: () => void;
 };
 
 export type FolderViewProps = FolderIdProps &
   OpenFolderProps &
   CreateProps &
-  FocusProps;
+  FocusProps &
+  FilterProps;
+
+export type FolderNoticeProps = FilterProps & {
+  locateName: string | null;
+};
 
 export type ItemRowProps = OpenFolderProps & {
   item: Item;
@@ -151,4 +172,10 @@ export type NoMatchesProps = {
 
 export type SearchFooterProps = {
   search: SearchQuery;
+};
+
+export type LoadMoreProps = {
+  folder: UseInfiniteQueryResult<InfiniteData<ItemPage>>;
+  itemCount: number;
+  onFocusItem: (item: Item) => void;
 };
