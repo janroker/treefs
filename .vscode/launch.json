@@ -7,7 +7,11 @@
       "request": "attach",
       "port": 9229,
       "restart": true,
-      "skipFiles": ["<node_internals>/**"]
+      "outFiles": ["${workspaceFolder}/backend/dist/**/*.js"],
+      "sourceMapPathOverrides": {
+        "webpack://backend/./*": "${workspaceFolder}/backend/*"
+      },
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
     },
     {
       "name": "Debug integration tests",
