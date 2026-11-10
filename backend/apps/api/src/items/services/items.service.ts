@@ -101,7 +101,7 @@ export class ItemsService {
   private static assertDepthAvailable(parent: ItemRow | null): void {
     if (parent !== null && parent.depth >= MAX_ITEM_DEPTH) {
       throw new UnprocessableException(
-        `Folders can be nested at most ${String(MAX_ITEM_DEPTH)} levels deep`,
+        `Cannot create items here: this folder is at the maximum depth of ${String(MAX_ITEM_DEPTH)}`,
         exceptionStatus.DEPTH_EXCEEDED,
       );
     }
