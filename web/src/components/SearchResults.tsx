@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import type {
   MatchedNameProps,
+  NoMatchesProps,
   SearchResultRowProps,
   SearchResultsProps,
 } from './components.types';
@@ -56,28 +57,39 @@ function SearchResultRow({
   );
 }
 
+function NoMatches({ onWiden }: Readonly<NoMatchesProps>): ReactNode {
+  return (
+    <p className="muted popup-note" aria-live="polite">
+      No matches.{' '}
+      {onWiden !== null && (
+        <button type="button" className="text-button" onClick={onWiden}>
+          Search everywhere instead?
+        </button>
+      )}
+    </p>
+  );
+}
+
 export function SearchResults({
   items,
   listId,
   activeIndex,
   onChoose,
   onWiden,
+  stale,
   ...rowProps
 }: Readonly<SearchResultsProps>): ReactNode {
   if (items.length === 0) {
-    return (
-      <p className="muted popup-note" aria-live="polite">
-        No matches.{' '}
-        {onWiden !== null && (
-          <button type="button" className="text-button" onClick={onWiden}>
-            Search everywhere instead?
-          </button>
-        )}
-      </p>
-    );
+    return <NoMatches onWiden={onWiden} />;
   }
   return (
-    <ul id={listId} role="listbox" aria-label="Search results">
+    <ul
+      id={listId}
+      role="listbox"
+      aria-label="Search results"
+      aria-busy={stale}
+      className={stale ? 'stale' : undefined}
+    >
       {items.map((item, index) => (
         <SearchResultRow
           key={item.id}

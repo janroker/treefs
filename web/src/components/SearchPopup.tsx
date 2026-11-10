@@ -24,7 +24,13 @@ export function SearchPopup({
           activeIndex={navigation.activeIndex}
           onChoose={navigation.choose}
           onWiden={canWiden ? onWiden : null}
+          stale={search.stale}
         />
+      )}
+      {search.stale && (
+        <p className="searching muted popup-note" role="status">
+          Searching…
+        </p>
       )}
     </div>
   );

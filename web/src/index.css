@@ -404,3 +404,19 @@ input[type='checkbox'] {
   color: var(--accent);
   text-decoration: underline;
 }
+
+.popup .stale {
+  transition: opacity 0.1s 0.2s;
+  opacity: 0.45;
+}
+
+.searching {
+  opacity: 0;
+  animation: reveal 0s 0.2s forwards;
+}
+
+@keyframes reveal {
+  to {
+    opacity: 1;
+  }
+}

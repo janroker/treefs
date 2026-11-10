@@ -4,6 +4,7 @@ import { useActiveOption } from './useActiveOption';
 
 export function useSearchNavigation({
   items,
+  locked,
   resetKey,
   onSelect,
   onDismiss,
@@ -19,7 +20,7 @@ export function useSearchNavigation({
   }
 
   const { activeIndex, onKeyDown } = useActiveOption({
-    count: items.length,
+    count: locked ? 0 : items.length,
     resetKey,
     onChoose: choose,
     onDismiss,

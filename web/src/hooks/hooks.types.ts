@@ -27,6 +27,7 @@ export type SearchQuery = {
   items: Array<Item>;
   open: boolean;
   showResults: boolean;
+  stale: boolean;
   error: Error | null;
 };
 
@@ -44,6 +45,7 @@ export type ActiveOption = {
 
 export type SearchNavigationConfig = {
   items: Array<Item>;
+  locked: boolean;
   resetKey: string;
   onSelect: (item: Item) => void;
   onDismiss: () => void;

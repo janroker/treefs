@@ -13,6 +13,7 @@ export function SearchField({
   const inputRef = useRef<HTMLInputElement>(null);
   const navigation = useSearchNavigation({
     items: search.items,
+    locked: search.stale,
     resetKey: form.text,
     onSelect,
     onDismiss: form.dismiss,

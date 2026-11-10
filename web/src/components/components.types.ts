@@ -71,11 +71,12 @@ export type SearchResultsProps = {
   activeIndex: number;
   onChoose: (index: number) => void;
   onWiden: (() => void) | null;
+  stale: boolean;
 };
 
 export type SearchResultRowProps = Omit<
   SearchResultsProps,
-  'items' | 'listId' | 'onChoose' | 'activeIndex' | 'onWiden'
+  'items' | 'listId' | 'onChoose' | 'activeIndex' | 'onWiden' | 'stale'
 > & {
   item: Item;
   id: string;
@@ -142,4 +143,8 @@ export type SearchPopupProps = {
   search: SearchQuery;
   navigation: SearchNavigation;
   onWiden: () => void;
+};
+
+export type NoMatchesProps = {
+  onWiden: (() => void) | null;
 };
