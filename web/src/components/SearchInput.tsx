@@ -6,10 +6,12 @@ export function SearchInput({
   open,
   listId,
   activeId,
+  inputRef,
   onKeyDown,
 }: Readonly<SearchInputProps>): ReactNode {
   return (
     <input
+      ref={inputRef}
       role="combobox"
       aria-label="Search by name"
       aria-autocomplete="list"

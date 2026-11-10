@@ -8,6 +8,7 @@ export function SearchPopup({
   insideFolder,
   search,
   navigation,
+  onWiden,
 }: Readonly<SearchPopupProps>): ReactNode {
   const canWiden = insideFolder && form.scope === 'folder';
 
@@ -22,7 +23,7 @@ export function SearchPopup({
           listId={navigation.listId}
           activeIndex={navigation.activeIndex}
           onChoose={navigation.choose}
-          onWiden={canWiden ? () => form.setScope('everywhere') : null}
+          onWiden={canWiden ? onWiden : null}
         />
       )}
     </div>

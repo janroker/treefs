@@ -11,7 +11,7 @@ export function useRowFocus(
 
   useEffect(() => {
     if (focused) {
-      rowRef.current?.focus({ preventScroll: true });
+      rowRef.current?.focus({ preventScroll: flash });
     }
     if (flash) {
       rowRef.current?.scrollIntoView({ block: 'center' });

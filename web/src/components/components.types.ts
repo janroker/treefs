@@ -1,4 +1,4 @@
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode, RefObject } from 'react';
 import type { FolderId, Item, ItemType, MatchMode } from '../api/api.types';
 import type {
   SearchForm,
@@ -132,6 +132,7 @@ export type SearchInputProps = {
   open: boolean;
   listId: string;
   activeId: string | undefined;
+  inputRef: RefObject<HTMLInputElement | null>;
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
 };
 
@@ -140,4 +141,5 @@ export type SearchPopupProps = {
   insideFolder: boolean;
   search: SearchQuery;
   navigation: SearchNavigation;
+  onWiden: () => void;
 };

@@ -1,6 +1,10 @@
 import type { ReactNode } from 'react';
 import { useFolderItems } from '../api/items';
-import type { Item } from '../api/api.types';
+import type {
+  InfiniteData,
+  UseInfiniteQueryResult,
+} from '@tanstack/react-query';
+import type { Item, ItemPage } from '../api/api.types';
 import type { FolderViewProps, ItemListProps } from './components.types';
 import { ItemRow } from './ItemRow';
 import { NewItemRow } from './NewItemRow';
@@ -56,6 +60,17 @@ function ItemList({
   );
 }
 
+async function loadMore(
+  folder: UseInfiniteQueryResult<InfiniteData<ItemPage>>,
+  onFocusItem: (id: string) => void,
+): Promise<void> {
+  const result = await folder.fetchNextPage();
+  const firstNew = result.data?.pages.at(-1)?.items[0];
+  if (firstNew !== undefined) {
+    onFocusItem(firstNew.id);
+  }
+}
+
 export function FolderView({
   folderId,
   ...listProps
@@ -82,7 +97,7 @@ export function FolderView({
           type="button"
           className="load-more"
           disabled={folder.isFetchingNextPage}
-          onClick={() => void folder.fetchNextPage()}
+          onClick={() => void loadMore(folder, listProps.onFocusItem)}
         >
           Load more
         </button>
