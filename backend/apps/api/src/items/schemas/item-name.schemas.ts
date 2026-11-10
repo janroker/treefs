@@ -24,7 +24,7 @@ export const itemNameSchema = z
   )
   .refine(
     (value) => !forbiddenCharacters.test(value),
-    'Name contains a character that is not allowed',
+    'Name must not contain / \\ or control characters',
   );
 
 export const searchTextSchema = z
