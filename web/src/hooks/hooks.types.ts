@@ -28,6 +28,9 @@ export type SearchQuery = {
   open: boolean;
   showResults: boolean;
   stale: boolean;
+  hasMore: boolean;
+  loadingMore: boolean;
+  loadMore: () => void;
   error: Error | null;
 };
 

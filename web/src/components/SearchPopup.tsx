@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { SearchPopupProps } from './components.types';
+import { SearchFooter } from './SearchFooter';
 import { SearchOptions } from './SearchOptions';
 import { SearchResults } from './SearchResults';
 
@@ -27,11 +28,7 @@ export function SearchPopup({
           stale={search.stale}
         />
       )}
-      {search.stale && (
-        <p className="searching muted popup-note" role="status">
-          Searching…
-        </p>
-      )}
+      <SearchFooter search={search} />
     </div>
   );
 }

@@ -148,3 +148,7 @@ export type SearchPopupProps = {
 export type NoMatchesProps = {
   onWiden: (() => void) | null;
 };
+
+export type SearchFooterProps = {
+  search: SearchQuery;
+};

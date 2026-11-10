@@ -60,19 +60,22 @@ export function useItemDetail(id: FolderId): UseQueryResult<ItemDetail> {
 export function useSearch(
   params: SearchParams,
   enabled: boolean,
-): UseQueryResult<ItemPage> {
-  return useQuery({
+): UseInfiniteQueryResult<InfiniteData<ItemPage>> {
+  return useInfiniteQuery({
     queryKey: ['items', 'search', params],
-    queryFn: ({ signal }) =>
+    initialPageParam: undefined as string | undefined,
+    queryFn: ({ pageParam, signal }) =>
       apiRequest<ItemPage>(ITEMS_URL, {
         query: {
           q: params.q,
           match: params.match,
           type: params.type,
           parentId: params.parentId,
+          cursor: pageParam,
         },
         signal,
       }),
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     enabled,
     placeholderData: keepPreviousData,
   });

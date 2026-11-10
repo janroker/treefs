@@ -38,10 +38,13 @@ export function useSearchQuery(
   );
   return {
     query: q,
-    items: result.data?.items ?? [],
+    items: result.data?.pages.flatMap((page) => page.items) ?? [],
     open: form.focused,
     showResults: enabled && result.data !== undefined,
     stale: result.isPlaceholderData || form.text !== q,
+    hasMore: result.hasNextPage,
+    loadingMore: result.isFetchingNextPage,
+    loadMore: () => void result.fetchNextPage(),
     error: result.error,
   };
 }
