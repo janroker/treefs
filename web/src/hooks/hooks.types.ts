@@ -26,6 +26,7 @@ export type SearchQuery = {
   query: string;
   items: Array<Item>;
   open: boolean;
+  showResults: boolean;
   error: Error | null;
 };
 

@@ -2,16 +2,16 @@ import type { ReactNode } from 'react';
 import { useSearchNavigation } from '../hooks/useSearchNavigation';
 import type { SearchFieldProps } from './components.types';
 import { SearchInput } from './SearchInput';
-import { SearchResults } from './SearchResults';
+import { SearchPopup } from './SearchPopup';
 
 export function SearchField({
   form,
+  insideFolder,
   search,
   onSelect,
 }: Readonly<SearchFieldProps>): ReactNode {
-  const { items, query, open } = search;
   const navigation = useSearchNavigation({
-    items,
+    items: search.items,
     resetKey: form.text,
     onSelect,
     onDismiss: form.dismiss,
@@ -21,22 +21,18 @@ export function SearchField({
     <div className="search-field">
       <SearchInput
         form={form}
-        open={open}
+        open={search.open}
         listId={navigation.listId}
         activeId={navigation.activeId}
         onKeyDown={navigation.onKeyDown}
       />
-      {open && (
-        <div className="popup">
-          <SearchResults
-            items={items}
-            query={query}
-            match={form.match}
-            listId={navigation.listId}
-            activeIndex={navigation.activeIndex}
-            onChoose={navigation.choose}
-          />
-        </div>
+      {search.open && (
+        <SearchPopup
+          form={form}
+          insideFolder={insideFolder}
+          search={search}
+          navigation={navigation}
+        />
       )}
     </div>
   );

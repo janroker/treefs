@@ -1,6 +1,10 @@
 import type { KeyboardEvent, ReactNode } from 'react';
 import type { FolderId, Item, ItemType, MatchMode } from '../api/api.types';
-import type { SearchForm, SearchQuery } from '../hooks/hooks.types';
+import type {
+  SearchForm,
+  SearchNavigation,
+  SearchQuery,
+} from '../hooks/hooks.types';
 
 type OpenFolderProps = {
   onOpen: (folderId: FolderId) => void;
@@ -66,11 +70,12 @@ export type SearchResultsProps = {
   listId: string;
   activeIndex: number;
   onChoose: (index: number) => void;
+  onWiden: (() => void) | null;
 };
 
 export type SearchResultRowProps = Omit<
   SearchResultsProps,
-  'items' | 'listId' | 'onChoose' | 'activeIndex'
+  'items' | 'listId' | 'onChoose' | 'activeIndex' | 'onWiden'
 > & {
   item: Item;
   id: string;
@@ -90,13 +95,8 @@ export type SearchBoxProps = FolderIdProps & {
 };
 
 export type SearchOptionsProps = {
+  form: SearchForm;
   insideFolder: boolean;
-  scope: SearchScope;
-  onScope: (scope: SearchScope) => void;
-  typeFilter: TypeFilter;
-  onTypeFilter: (typeFilter: TypeFilter) => void;
-  match: MatchMode;
-  onMatch: (match: MatchMode) => void;
 };
 
 export type MatchedNameProps = {
@@ -107,6 +107,7 @@ export type MatchedNameProps = {
 
 export type SearchFieldProps = {
   form: SearchForm;
+  insideFolder: boolean;
   search: SearchQuery;
   onSelect: (item: Item) => void;
 };
@@ -132,4 +133,11 @@ export type SearchInputProps = {
   listId: string;
   activeId: string | undefined;
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
+};
+
+export type SearchPopupProps = {
+  form: SearchForm;
+  insideFolder: boolean;
+  search: SearchQuery;
+  navigation: SearchNavigation;
 };

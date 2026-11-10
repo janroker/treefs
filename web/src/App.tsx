@@ -19,8 +19,10 @@ export function App(): ReactNode {
   return (
     <>
       <header className="topbar">
-        <h1>{APP_NAME}</h1>
-        <SearchBox folderId={browser.folderId} onSelect={browser.select} />
+        <div className="topbar-inner">
+          <h1>{APP_NAME}</h1>
+          <SearchBox folderId={browser.folderId} onSelect={browser.select} />
+        </div>
       </header>
       <main className="content">
         <div className="toolbar">

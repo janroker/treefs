@@ -23,21 +23,20 @@ function ScopeSelect({
 }
 
 export function SearchOptions({
+  form,
   insideFolder,
-  scope,
-  onScope,
-  typeFilter,
-  onTypeFilter,
-  match,
-  onMatch,
 }: Readonly<SearchOptionsProps>): ReactNode {
   return (
-    <>
-      {insideFolder && <ScopeSelect scope={scope} onScope={onScope} />}
+    <div className="filters">
+      {insideFolder && (
+        <ScopeSelect scope={form.scope} onScope={form.setScope} />
+      )}
       <select
         aria-label="Search for"
-        value={typeFilter}
-        onChange={(event) => onTypeFilter(event.target.value as TypeFilter)}
+        value={form.typeFilter}
+        onChange={(event) =>
+          form.setTypeFilter(event.target.value as TypeFilter)
+        }
       >
         <option value="file">Files</option>
         <option value="folder">Folders</option>
@@ -46,13 +45,13 @@ export function SearchOptions({
       <label>
         <input
           type="checkbox"
-          checked={match === 'exact'}
+          checked={form.match === 'exact'}
           onChange={(event) =>
-            onMatch(event.target.checked ? 'exact' : 'prefix')
+            form.setMatch(event.target.checked ? 'exact' : 'prefix')
           }
         />
         Exact name
       </label>
-    </>
+    </div>
   );
 }

@@ -3,7 +3,6 @@ import { useSearchForm } from '../hooks/useSearchForm';
 import { useSearchQuery } from '../hooks/useSearchQuery';
 import type { SearchBoxProps } from './components.types';
 import { SearchField } from './SearchField';
-import { SearchOptions } from './SearchOptions';
 
 export function SearchBox({
   folderId,
@@ -25,15 +24,11 @@ export function SearchBox({
       onFocus={() => form.setFocused(true)}
       onBlur={closeOnLeave}
     >
-      <SearchField form={form} search={search} onSelect={onSelect} />
-      <SearchOptions
+      <SearchField
+        form={form}
         insideFolder={folderId !== null}
-        scope={form.scope}
-        onScope={form.setScope}
-        typeFilter={form.typeFilter}
-        onTypeFilter={form.setTypeFilter}
-        match={form.match}
-        onMatch={form.setMatch}
+        search={search}
+        onSelect={onSelect}
       />
       {search.error !== null && (
         <p role="alert">Search failed: {search.error.message}</p>

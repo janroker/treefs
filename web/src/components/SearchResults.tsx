@@ -61,12 +61,18 @@ export function SearchResults({
   listId,
   activeIndex,
   onChoose,
+  onWiden,
   ...rowProps
 }: Readonly<SearchResultsProps>): ReactNode {
   if (items.length === 0) {
     return (
       <p className="muted popup-note" aria-live="polite">
-        No matches.
+        No matches.{' '}
+        {onWiden !== null && (
+          <button type="button" className="text-button" onClick={onWiden}>
+            Search everywhere instead?
+          </button>
+        )}
       </p>
     );
   }

@@ -39,7 +39,8 @@ export function useSearchQuery(
   return {
     query: q,
     items: result.data?.items ?? [],
-    open: form.focused && enabled && result.data !== undefined,
+    open: form.focused,
+    showResults: enabled && result.data !== undefined,
     error: result.error,
   };
 }
