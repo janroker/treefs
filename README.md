@@ -9,7 +9,7 @@ user can:
 - get suggestions while typing: the 10 newest items whose names start with the typed text
 - delete a file, or a folder together with everything inside it
 
-The project is a time-boxed take-home assignment. Every feature above is built. Work that would only add more proof
+Every feature above is built. Work that would only add more proof
 or polish was left out; each omission is listed in [Trade-offs and what I skipped](#trade-offs-and-what-i-skipped).
 
 ## Contents
