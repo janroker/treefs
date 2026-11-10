@@ -6,9 +6,11 @@ import type {
 } from './components.types';
 import { FileIcon, FolderIcon } from './Icons';
 
-function folderPathOf(path: string, name: string): string {
-  const folderPath = path.slice(0, path.length - name.length - 1);
-  return folderPath === '' ? 'All files' : folderPath;
+const PATH_SEPARATOR = ' › ';
+
+function folderPathOf(path: string): string {
+  const parents = path.split('/').slice(1, -1);
+  return ['All files', ...parents].join(PATH_SEPARATOR);
 }
 
 function MatchedName({
@@ -48,7 +50,7 @@ function SearchResultRow({
       {item.type === 'folder' ? <FolderIcon /> : <FileIcon />}
       <span className="result-text">
         <MatchedName name={item.name} query={query} match={match} />
-        <span className="muted name">{folderPathOf(item.path, item.name)}</span>
+        <span className="muted name">{folderPathOf(item.path)}</span>
       </span>
     </li>
   );

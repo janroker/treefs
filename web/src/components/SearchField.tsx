@@ -12,6 +12,7 @@ export function SearchField({
   const { items, query, open } = search;
   const navigation = useSearchNavigation({
     items,
+    resetKey: form.text,
     onSelect,
     onDismiss: form.dismiss,
   });

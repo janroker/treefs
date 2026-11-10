@@ -10,32 +10,34 @@ function movedIndex(index: number, step: number, count: number): number {
 
 export function useActiveOption({
   count,
+  resetKey,
   onChoose,
   onDismiss,
 }: ActiveOptionConfig): ActiveOption {
-  const [index, setIndex] = useState(NONE);
-  const activeIndex = index < count ? index : NONE;
+  const [active, setActive] = useState({ index: NONE, resetKey });
+  const activeIndex = active.resetKey === resetKey ? active.index : NONE;
+
+  function move(step: number): void {
+    setActive({ index: movedIndex(activeIndex, step, count), resetKey });
+  }
+
+  function choose(): void {
+    if (count > 0) {
+      onChoose(Math.max(activeIndex, 0));
+    }
+  }
 
   function onKeyDown(event: KeyboardEvent<HTMLInputElement>): void {
-    switch (event.key) {
-      case 'ArrowDown':
-      case 'ArrowUp':
-        event.preventDefault();
-        setIndex(
-          movedIndex(activeIndex, event.key === 'ArrowDown' ? 1 : -1, count),
-        );
-        break;
-      case 'Enter':
-        if (activeIndex !== NONE) {
-          event.preventDefault();
-          onChoose(activeIndex);
-        }
-        break;
-      case 'Escape':
-        onDismiss();
-        break;
-      default:
-        break;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      move(event.key === 'ArrowDown' ? 1 : -1);
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      choose();
+    }
+    if (event.key === 'Escape') {
+      onDismiss();
     }
   }
 

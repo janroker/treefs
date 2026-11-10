@@ -31,6 +31,7 @@ export type SearchQuery = {
 
 export type ActiveOptionConfig = {
   count: number;
+  resetKey: string;
   onChoose: (index: number) => void;
   onDismiss: () => void;
 };
@@ -42,6 +43,7 @@ export type ActiveOption = {
 
 export type SearchNavigationConfig = {
   items: Array<Item>;
+  resetKey: string;
   onSelect: (item: Item) => void;
   onDismiss: () => void;
 };
