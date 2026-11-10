@@ -1,11 +1,11 @@
-import type { JSX } from 'react';
+import type { ReactNode } from 'react';
 import { useItemDetail } from '../api/items';
 import type { BreadcrumbsProps } from './components.types';
 
 export function Breadcrumbs({
   folderId,
   onOpen,
-}: Readonly<BreadcrumbsProps>): JSX.Element {
+}: Readonly<BreadcrumbsProps>): ReactNode {
   const { data: folder } = useItemDetail(folderId);
   const trail =
     folder === undefined

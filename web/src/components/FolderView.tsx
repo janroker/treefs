@@ -1,9 +1,9 @@
-import type { JSX } from 'react';
+import type { ReactNode } from 'react';
 import { useFolderItems } from '../api/items';
 import type { FolderViewProps, ItemRowProps } from './components.types';
 import { DeleteButton } from './DeleteButton';
 
-function ItemRow({ item, onOpen }: Readonly<ItemRowProps>): JSX.Element {
+function ItemRow({ item, onOpen }: Readonly<ItemRowProps>): ReactNode {
   const isFolder = item.type === 'folder';
   return (
     <li className="item">
@@ -23,7 +23,7 @@ function ItemRow({ item, onOpen }: Readonly<ItemRowProps>): JSX.Element {
 export function FolderView({
   folderId,
   onOpen,
-}: Readonly<FolderViewProps>): JSX.Element {
+}: Readonly<FolderViewProps>): ReactNode {
   const folder = useFolderItems(folderId);
 
   if (folder.isPending) {

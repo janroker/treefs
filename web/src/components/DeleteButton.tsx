@@ -1,11 +1,11 @@
-import { type JSX, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useDeleteItem } from '../api/items';
 import type { DeleteButtonProps } from './components.types';
 
 export function DeleteButton({
   id,
   name,
-}: Readonly<DeleteButtonProps>): JSX.Element {
+}: Readonly<DeleteButtonProps>): ReactNode {
   const [confirming, setConfirming] = useState(false);
   const remove = useDeleteItem();
 

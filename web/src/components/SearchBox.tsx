@@ -1,4 +1,4 @@
-import { type JSX, useState } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useSearch } from '../api/items';
 import type { MatchMode } from '../api/api.types';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
@@ -14,7 +14,7 @@ const DEBOUNCE_MS = 150;
 function SearchResults({
   items,
   onOpen,
-}: Readonly<SearchResultsProps>): JSX.Element {
+}: Readonly<SearchResultsProps>): ReactNode {
   if (items.length === 0) {
     return <p>No matches.</p>;
   }
@@ -45,7 +45,7 @@ function SearchOptions({
   onTypeFilter,
   match,
   onMatch,
-}: Readonly<SearchOptionsProps>): JSX.Element {
+}: Readonly<SearchOptionsProps>): ReactNode {
   return (
     <>
       <select
@@ -71,7 +71,7 @@ function SearchOptions({
   );
 }
 
-export function SearchBox({ onOpen }: Readonly<OpenFolderProps>): JSX.Element {
+export function SearchBox({ onOpen }: Readonly<OpenFolderProps>): ReactNode {
   const [text, setText] = useState('');
   const [focused, setFocused] = useState(false);
   const [match, setMatch] = useState<MatchMode>('prefix');

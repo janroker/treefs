@@ -1,4 +1,4 @@
-import type { JSX } from 'react';
+import type { ReactNode } from 'react';
 import { useItemDetail } from './api/items';
 import { Breadcrumbs } from './components/Breadcrumbs';
 import { CreateItemForm } from './components/CreateItemForm';
@@ -9,7 +9,7 @@ import { useFolderUrl } from './hooks/useFolderUrl';
 
 const APP_NAME = 'treefs';
 
-export function App(): JSX.Element {
+export function App(): ReactNode {
   const [folderId, openFolder] = useFolderUrl();
   const { data: folder } = useItemDetail(folderId);
   useDocumentTitle(

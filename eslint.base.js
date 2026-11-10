@@ -14,6 +14,10 @@ const bannedSyntax = [
   },
   { selector: 'ExportDefaultDeclaration', message: 'Use named exports.' },
   {
+    selector: 'TSQualifiedName[left.name="JSX"][right.name="Element"]',
+    message: 'Return ReactNode from components, not JSX.Element.',
+  },
+  {
     selector: ':function > TSTypeAnnotation TSTypeLiteral',
     message:
       'Declare return types in the domain types file (for example items.types.ts), not inline.',

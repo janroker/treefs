@@ -1,11 +1,11 @@
-import { type JSX, type SyntheticEvent, useState } from 'react';
+import { type ReactNode, type SyntheticEvent, useState } from 'react';
 import { useCreateItem } from '../api/items';
 import type { ItemType } from '../api/api.types';
 import type { FolderIdProps } from './components.types';
 
 export function CreateItemForm({
   folderId,
-}: Readonly<FolderIdProps>): JSX.Element {
+}: Readonly<FolderIdProps>): ReactNode {
   const [name, setName] = useState('');
   const [type, setType] = useState<ItemType>('folder');
   const create = useCreateItem();
