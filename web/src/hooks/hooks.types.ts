@@ -66,8 +66,8 @@ export type NewItemForm = {
   name: string;
   setName: (name: string) => void;
   submit: (event: SyntheticEvent<HTMLFormElement>) => void;
-  isPending: boolean;
-  error: Error | null;
+  canSubmit: boolean;
+  message: string | null;
 };
 
 export type Browser = {

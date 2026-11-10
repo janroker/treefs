@@ -23,20 +23,16 @@ export function NewItemRow(props: Readonly<NewItemRowProps>): ReactNode {
           value={form.name}
           onChange={(event) => form.setName(event.target.value)}
         />
-        <button
-          type="submit"
-          className="primary"
-          disabled={form.isPending || form.name.trim() === ''}
-        >
+        <button type="submit" className="primary" disabled={!form.canSubmit}>
           Create
         </button>
         <button type="button" onClick={onCancel}>
           Cancel
         </button>
       </form>
-      {form.error !== null && (
+      {form.message !== null && (
         <p role="alert" className="item-error">
-          {form.error.message}
+          {form.message}
         </p>
       )}
     </li>

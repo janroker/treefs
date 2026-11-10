@@ -1,5 +1,6 @@
 import { type SyntheticEvent, useEffect, useState } from 'react';
 import { useCreateItem } from '../api/items';
+import { nameProblem } from '../api/name-rules';
 import type { NewItemForm, NewItemFormConfig } from './hooks.types';
 
 export function useNewItem({
@@ -25,11 +26,13 @@ export function useNewItem({
     create.mutate({ type, name, parentId: folderId }, { onSuccess: onCreated });
   }
 
+  const problem = nameProblem(name);
+
   return {
     name,
     setName,
     submit,
-    isPending: create.isPending,
-    error: create.error,
+    canSubmit: !create.isPending && name.trim() !== '' && problem === null,
+    message: problem ?? create.error?.message ?? null,
   };
 }
