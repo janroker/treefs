@@ -18,12 +18,14 @@ import type {
   SearchParams,
 } from './api.types';
 import { apiRequest, ITEMS_URL } from './client';
+import { withItem, withoutItem } from './items-cache';
 
 const ROOT = 'root';
 const PAGE_SIZE = 50;
 
 const itemKeys = {
-  all: ['items'] as const,
+  folders: ['items', 'folder'] as const,
+  searches: ['items', 'search'] as const,
   folder: (folderId: FolderId) =>
     ['items', 'folder', folderId ?? ROOT] as const,
   detail: (id: string) => ['items', 'detail', id] as const,
@@ -62,7 +64,7 @@ export function useSearch(
   enabled: boolean,
 ): UseInfiniteQueryResult<InfiniteData<ItemPage>> {
   return useInfiniteQuery({
-    queryKey: ['items', 'search', params],
+    queryKey: [...itemKeys.searches, params],
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam, signal }) =>
       apiRequest<ItemPage>(ITEMS_URL, {
@@ -86,7 +88,13 @@ export function useCreateItem(): UseMutationResult<Item, Error, NewItem> {
   return useMutation({
     mutationFn: (body: NewItem) =>
       apiRequest<Item>(ITEMS_URL, { method: 'POST', body }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: itemKeys.all }),
+    onSuccess: async (created) => {
+      queryClient.setQueryData<InfiniteData<ItemPage>>(
+        itemKeys.folder(created.parentId),
+        (data) => (data === undefined ? data : withItem(data, created)),
+      );
+      await queryClient.invalidateQueries({ queryKey: itemKeys.searches });
+    },
   });
 }
 
@@ -97,8 +105,13 @@ export function useDeleteItem(
   return useMutation({
     mutationFn: (id: string) =>
       apiRequest<undefined>(`${ITEMS_URL}/${id}`, { method: 'DELETE' }),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: itemKeys.all });
+    onSuccess: async (_, id) => {
+      queryClient.setQueriesData<InfiniteData<ItemPage>>(
+        { queryKey: itemKeys.folders },
+        (data) => (data === undefined ? data : withoutItem(data, id)),
+      );
+      queryClient.removeQueries({ queryKey: itemKeys.detail(id) });
+      await queryClient.invalidateQueries({ queryKey: itemKeys.searches });
       onDeleted();
     },
   });
