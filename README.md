@@ -293,16 +293,47 @@ often an item was opened, and fuzzy or substring search.
 
 ## Growing beyond one database
 
-The API stores nothing between requests, so several copies of it can run side by side. The database is the part
-that would need to grow, in roughly this order:
+The API stores nothing between requests, so several copies of it can run side by side behind a load balancer.
+The parts that would need to grow are the database and search. A larger setup could look like this:
 
-1. **A connection pooler (PgBouncer)** lets many API copies share a limited number of database connections.
-2. **Read replicas** are copies of the database that answer read requests. After a user creates an item, that
-   user's next reads must still go to the main database, or the new item would seem to be missing.
-3. **Soft delete** marks a deleted folder at once and removes its contents in the background, in small batches.
-4. **Sharding** splits the table across several databases. Splitting by `parentId` keeps all items of one folder
-   in the same database, so the unique-name rule still works.
-5. **A search engine**, fed with changes from PostgreSQL, takes over suggestions and substring search.
+```mermaid
+flowchart LR
+  web[Browser] --> lb[Load balancer]
+  lb --> api1[API] & api2[API]
+  api1 & api2 --> redis[(Redis<br/>cache, rate limits)]
+  api1 & api2 --> pool[PgBouncer]
+  pool --> primary[(PostgreSQL primary<br/>all writes)]
+  pool --> replica[(Read replicas)]
+  primary -- "changes" --> queue[[Queue / change stream]]
+  queue --> search[(Search engine)]
+  queue --> worker[Background worker]
+  api1 & api2 -- "suggestions, substring search" --> search
+```
+
+The steps, in roughly the order they would be needed:
+
+1. **Connection pooler (PgBouncer).** Each API copy opens its own database connections, and PostgreSQL handles
+   only a few hundred well. PgBouncer lets many API copies share a small number of real connections.
+2. **Redis.** An in-memory store shared by all API copies:
+   - **Cache** for the most requested reads, such as the first page of popular folders and suggestions for one- or
+     two-letter prefixes (the slow case described in the trade-offs). Entries expire after a few seconds and are
+     removed when an item in that folder changes.
+   - **Rate limits** counted in one place, so a client cannot get a fresh limit by reaching a different API copy.
+   - PostgreSQL stays the source of truth: if Redis is lost, the API reads from the database again.
+3. **Read replicas.** Copies of the database that answer read requests and take load off the primary, which
+   handles all writes. Right after a user creates an item, that user's reads should still go to the primary,
+   otherwise the new item could briefly seem to be missing.
+4. **Soft delete with a background worker.** A delete only marks the folder as deleted, which is instant. A worker
+   then removes its contents in small batches, so a huge folder no longer blocks a request or hits a time limit.
+5. **Dedicated search engine** (for example OpenSearch, Elasticsearch or Meilisearch). It keeps its own index of
+   item names, built for search, and takes over suggestions, substring and fuzzy search ("reprot" finds "report").
+   It is fed from PostgreSQL through a queue or change stream (an outbox table or Debezium), so it lags a little
+   behind. The API therefore checks search hits against PostgreSQL before returning them, so deleted items never
+   show up.
+6. **Sharding.** When one primary can no longer take all writes, the table is split across several databases.
+   Splitting by `parentId` keeps all items of one folder in the same database, so the unique-name rule still works
+   inside one database. A distributed SQL database (CockroachDB, YugabyteDB, Citus) is the alternative that keeps
+   SQL and constraints without managing shards by hand.
 
 ## How AI was used
 
