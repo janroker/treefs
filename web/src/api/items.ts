@@ -1,5 +1,6 @@
 import {
   type InfiniteData,
+  keepPreviousData,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -14,6 +15,7 @@ import type {
   ItemDetail,
   ItemPage,
   NewItem,
+  SearchParams,
 } from './api.types';
 import { apiRequest, ITEMS_URL } from './client';
 
@@ -52,6 +54,22 @@ export function useItemDetail(id: FolderId): UseQueryResult<ItemDetail> {
     queryFn: ({ signal }) =>
       apiRequest<ItemDetail>(`${ITEMS_URL}/${id ?? ''}`, { signal }),
     enabled: id !== null,
+  });
+}
+
+export function useSearch(
+  params: SearchParams,
+  enabled: boolean,
+): UseQueryResult<ItemPage> {
+  return useQuery({
+    queryKey: ['items', 'search', params],
+    queryFn: ({ signal }) =>
+      apiRequest<ItemPage>(ITEMS_URL, {
+        query: { q: params.q, match: params.match, type: params.type },
+        signal,
+      }),
+    enabled,
+    placeholderData: keepPreviousData,
   });
 }
 
