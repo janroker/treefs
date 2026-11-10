@@ -165,129 +165,59 @@ before each push. The web app has no automated tests; it was tested by hand.
 
 ## The HTTP API
 
-All routes start with `/api/v1/items`. An **item** is a file or a folder:
+All routes start with `/api/v1/items`. An item is returned as
+`{id, type, name, parentId, path, createdAt}`, where `parentId` is `null` at the top level.
 
-```json
-{
-  "id": "0193b2b0-...",
-  "type": "file",
-  "name": "report.pdf",
-  "parentId": "0193b2a8-...",
-  "path": "/Projects/2026/report.pdf",
-  "createdAt": "2026-11-10T09:00:00.000Z"
-}
-```
+| Request                                   | What it does                              | Success | Errors          |
+| ----------------------------------------- | ----------------------------------------- | ------- | --------------- |
+| `POST /` with `{type, name, parentId}`    | creates a file or folder                  | 201     | 400 404 409 422 |
+| `GET /{id}`                               | returns one item and the folders above it | 200     | 400 404         |
+| `GET /?parentId={id or root}`             | lists a folder, sorted by name            | 200     | 400 404 422     |
+| `GET /?q={text}&match=exact` or `=prefix` | searches by exact name or by name start   | 200     | 400             |
+| `DELETE /{id}`                            | deletes the item and everything inside it | 204     | 400 404         |
 
-`parentId` is `null` for an item at the top level.
-
-| Request                                                | What it does                                         | Success                               |
-| ------------------------------------------------------ | ---------------------------------------------------- | ------------------------------------- |
-| `POST /api/v1/items` with `{type, name, parentId}`     | creates a file or folder                             | 201 Created, with a `Location` header |
-| `GET /api/v1/items/{id}`                               | returns one item and the folders above it            | 200 OK                                |
-| `GET /api/v1/items?parentId={id}` (or `parentId=root`) | lists a folder's contents, sorted by name            | 200 OK, `{items, nextCursor}`         |
-| `GET /api/v1/items?q={text}&match=exact`               | finds items with exactly this name                   | 200 OK, `{items, nextCursor}`         |
-| `GET /api/v1/items?q={text}&match=prefix`              | finds items whose name starts with the text          | 200 OK, `{items, nextCursor}`         |
-| `DELETE /api/v1/items/{id}`                            | deletes the item and, for a folder, all its contents | 204 No Content, empty body            |
-
-Optional query parameters for the list and search routes:
-
-- `type=file` or `type=folder` returns only that kind of item.
-- `parentId` on a search limits it to the direct children of one folder. Without it, the search covers every folder.
-- `limit` sets the page size.
-- `cursor` fetches the next page. Every list response contains `nextCursor`. Send it back as `cursor` to get the
-  following page; when `nextCursor` is `null`, there are no more pages.
-
-Prefix search returns the newest items first and 10 items by default. An empty `q` returns the 10 newest items of
-all, which the web app shows when the search box gets focus.
-
-**Errors.** Every error response has the same shape:
-
-```json
-{
-  "code": "conflict.nameTaken",
-  "message": "An item named \"report.pdf\" already exists in this folder",
-  "statusCode": 409,
-  "correlationId": "2a02b660-9922-409e-9a66-5813bd6ac20a"
-}
-```
-
-| Status | Meaning                                                                    |
-| ------ | -------------------------------------------------------------------------- |
-| 400    | the request is invalid, for example an empty name or a name containing `/` |
-| 404    | the item or the parent folder does not exist                               |
-| 409    | the folder already contains an item with this name                         |
-| 422    | the parent is a file, or the parent folder is already 64 levels deep       |
-
-The `correlationId` is also sent in the `x-request-id` response header. It identifies the request in the server
-logs.
+- **Filters:** `type=file|folder`; on a search, `parentId` limits it to one folder.
+- **Paging:** list responses are `{items, nextCursor}`. Send `nextCursor` back as `cursor` for the next page.
+- **Prefix search** returns the 10 newest matches; an empty `q` returns the 10 newest items.
+- **Errors** look like `{code, message, statusCode, correlationId}`, for example `conflict.nameTaken` with 409.
+  400 means invalid input, 404 a missing item or parent, 409 a name already used in the folder, 422 a parent that is
+  a file or already 64 levels deep.
 
 ## How the data is stored
 
-All items live in one table:
+```mermaid
+erDiagram
+  item ||--o{ item : "contains (parentId, ON DELETE CASCADE)"
+  item {
+    uuid id PK "UUID v7, sorts by creation time"
+    enum type "file or folder"
+    uuid parentId FK "null at the top level"
+    varchar name "at most 255 bytes"
+    varchar nameKey "lower case, Unicode NFC; unique per folder"
+    smallint depth "0 to 64"
+    timestamptz createdAt
+  }
+```
 
-| Column      | Meaning                                                       |
-| ----------- | ------------------------------------------------------------- |
-| `id`        | unique identifier (a UUID version 7, explained below)         |
-| `type`      | `file` or `folder`                                            |
-| `parentId`  | the `id` of the containing folder, or empty for the top level |
-| `name`      | the name as the user typed it                                 |
-| `nameKey`   | the name converted to a comparison form (explained below)     |
-| `depth`     | how many folders are above the item (0 at the top level)      |
-| `createdAt` | when the item was created                                     |
+Every item is one row that points to its parent folder. The database itself enforces the rules, so two requests
+racing each other cannot break them. The API inserts first and turns a rejected insert into the matching status.
 
-Each row points to its parent. This layout is called an **adjacency list**. It makes creating an item a single
-insert, and moving an item later would change only one row.
+- **Unique names per folder:** `Report.pdf`, `REPORT.PDF` and differently encoded `café`s count as the same name,
+  because the unique index is on `(parentId, nameKey)`.
+- **Parent must be a folder**, checked in the same transaction as the insert. **Depth** is at most 64.
+- **Deleting a folder** is one SQL statement; `ON DELETE CASCADE` removes everything inside it.
 
-### The database enforces the rules
+Every read uses an index and fetches one page, so its cost does not grow with the number of items:
 
-Rules such as "names in one folder are unique" are written into the table itself, as constraints and indexes.
-The API does not check first and then insert, because two requests could both pass the check at the same moment
-and both insert. Instead, the API inserts directly. If the insert breaks a rule, PostgreSQL rejects it with an error
-code, and the API turns that code into the matching HTTP status (409, 404 and so on).
+| Read           | Index used                                        |
+| -------------- | ------------------------------------------------- |
+| list a folder  | `(parentId, nameKey)`, already sorted by name     |
+| search by name | `(nameKey, id)`; a prefix becomes a range of keys |
+| newest first   | the primary key, since UUID v7 starts with a time |
 
-The rules are:
-
-- **Unique names per folder, ignoring case.** `Report.pdf` and `REPORT.PDF` count as the same name. So do two
-  spellings of `café` that look identical but are stored as different Unicode characters. The `nameKey` column holds
-  the name in lower case and in one standard Unicode form (NFC), and a unique index on `(parentId, nameKey)` allows
-  each key only once per folder. The top level counts as one folder too.
-- **A parent must be a folder.** The service checks this inside the same transaction as the insert.
-- **Names are at most 255 bytes**, and certain characters are refused: `/`, `\`, control characters and
-  right-to-left override characters.
-- **Folders are at most 64 levels deep.** A folder at level 64 can exist, but nothing can be created inside it.
-- **Deleting a folder deletes everything inside it.** The table uses `ON DELETE CASCADE`: deleting one row makes
-  PostgreSQL delete all rows that point to it, then the rows that point to those, and so on. The whole delete is a
-  single SQL statement, so it either removes everything or nothing.
-
-### Indexes keep reads fast
-
-An **index** is a sorted copy of some columns that lets the database find rows without reading the whole table,
-like the index at the back of a book. Every read in treefs uses an index and asks for a fixed number of rows, so its
-cost depends on the page size, not on how many items exist.
-
-- **Listing a folder** uses the index on `(parentId, nameKey)`: the contents of one folder sit next to each other,
-  already sorted by name.
-- **Searching by name** uses an index on `(nameKey, id)`: equal names, and names with the same beginning, sit next to
-  each other.
-- **Newest first** uses the primary key. treefs uses **UUID version 7** identifiers, which start with a timestamp, so
-  sorting by `id` also sorts by creation time.
-
-**Paging** uses a cursor instead of a page number. A cursor remembers the last item of the current page, and the
-next page starts right after it. With page numbers ("skip 5,000 rows, take 50") the database would read and throw
-away 5,000 rows first; with a cursor it jumps straight to the right place in the index.
-
-**Prefix search** asks for a range of keys ("from `rep` up to just before `req`") instead of SQL's `LIKE 'rep%'`.
-This uses the index directly, and characters such as `%` or `_` typed by the user have no special meaning.
-
-**Paths** such as `/Projects/2026/report.pdf` are not stored. Each time a page of items is returned, one SQL query
-walks up the parent links and builds the paths. Stored paths could become wrong after a move; computed paths
-cannot.
-
-### Schema changes
-
-The table is described in code as a TypeORM entity. Migrations, the scripts that change the database structure,
-are generated from that entity with `pnpm --filter backend migration:generate` and applied with `pnpm db:migrate`.
-The API never changes the database structure on its own when it starts.
+Pages continue from a cursor (the last item seen) instead of skipping rows. Paths are built when items are read,
+by one query that follows the parent links, so they never go stale. Migrations are generated from the TypeORM
+entity (`pnpm --filter backend migration:generate`) and applied with `pnpm db:migrate`.
 
 ## How fast it is
 
