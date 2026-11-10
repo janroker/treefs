@@ -1,2 +1,6 @@
 packages:
-  - apps/web
+  - backend
+  - web
+
+allowBuilds:
+  msw: false

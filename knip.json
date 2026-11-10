@@ -2,14 +2,18 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "workspaces": {
     ".": {
+      "entry": ["eslint.base.js"],
+      "project": ["*.js"]
+    },
+    "backend": {
       "entry": ["apps/api/src/main.ts"],
-      "project": ["apps/api/**/*.ts"],
+      "project": ["apps/**/*.ts"],
       "ignoreDependencies": [
         "@nestjs/mau",
         "@types/express",
         "source-map-support"
       ]
     },
-    "apps/web": {}
+    "web": {}
   }
 }

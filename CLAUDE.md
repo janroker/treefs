@@ -1,14 +1,16 @@
-@AGENTS.md
+@backend/AGENTS.md
 
 # Project
 
-A file tree metadata service: a NestJS API (`apps/api`), a Vite and React SPA (`apps/web`), PostgreSQL as the
+A file tree metadata service: a NestJS API (`backend/apps/api`), a Vite and React SPA (`web`), PostgreSQL as the
 source of truth. It is a time-boxed take-home: build every feature, cut expensive proof
 and polish, and record each cut in the README's "Trade-offs and what I skipped" section.
 
-The repository is a Nest CLI workspace (monorepo mode, see https://docs.nestjs.com/cli/monorepo). `apps/web` is
-the one project that is not a Nest project; it keeps its own `package.json` and is listed in
-`pnpm-workspace.yaml`.
+The repository is a pnpm workspace of two packages. `backend` is a Nest CLI workspace in monorepo mode (see
+https://docs.nestjs.com/cli/monorepo) with its own `package.json`, `tsconfig.json`, `nest-cli.json` and ESLint
+config; each Nest app has its own `tsconfig.app.json`. `web` is a Vite project with its own configs. The root
+holds what covers both: `tsconfig.base.json`, `eslint.base.js`, Prettier, commitlint, husky, knip, Docker
+Compose and the fan-out scripts. Put a setting at the narrowest level that needs it.
 
 ## Rules that override defaults
 
@@ -16,7 +18,7 @@ the one project that is not a Nest project; it keeps its own `package.json` and 
 - Never write the project's old codename into the codebase, package names, container names or docs. The name is
   `treefs`.
 - Follow the documented Nest approach. Do not delete or replace generated files, scripts or dependencies
-  (`AGENTS.md`, `README.md`, `nest-cli.json`, the generated scripts) without asking first.
+  (`backend/AGENTS.md`, `README.md`, `backend/nest-cli.json`, the generated scripts) without asking first.
 - Avoid code comments. Make names self-explanatory and extract anything complex into a named function. A comment
   is allowed only when the reason cannot be expressed in code, and `eslint-disable` always needs a description.
 - Return types live in a types file in the same domain, for example `items/types/items.types.ts`, never inline as
