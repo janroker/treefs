@@ -29,10 +29,11 @@ export function App(): ReactNode {
         </div>
         <FolderView
           folderId={browser.folderId}
-          highlightedId={browser.highlightedId}
+          focus={browser.focus}
           creating={browser.creating}
-          onCreate={browser.startCreate}
-          onCreateDone={browser.finishCreate}
+          onCreated={browser.created}
+          onCreateCancel={browser.cancelCreate}
+          onFocusItem={browser.focusItem}
           onOpen={browser.open}
         />
       </main>

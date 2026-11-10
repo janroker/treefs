@@ -87,11 +87,16 @@ export function useCreateItem(): UseMutationResult<Item, Error, NewItem> {
   });
 }
 
-export function useDeleteItem(): UseMutationResult<undefined, Error, string> {
+export function useDeleteItem(
+  onDeleted: () => void,
+): UseMutationResult<undefined, Error, string> {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
       apiRequest<undefined>(`${ITEMS_URL}/${id}`, { method: 'DELETE' }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: itemKeys.all }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: itemKeys.all });
+      onDeleted();
+    },
   });
 }

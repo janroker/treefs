@@ -1,6 +1,10 @@
 import type { KeyboardEvent, RefObject, SyntheticEvent } from 'react';
 import type { FolderId, Item, ItemType, MatchMode } from '../api/api.types';
-import type { SearchScope, TypeFilter } from '../components/components.types';
+import type {
+  RowFocus,
+  SearchScope,
+  TypeFilter,
+} from '../components/components.types';
 
 export type FolderUrl = readonly [FolderId, (folderId: FolderId) => void];
 
@@ -52,7 +56,7 @@ export type NewItemFormConfig = {
   type: ItemType;
   folderId: FolderId;
   inputRef: RefObject<HTMLInputElement | null>;
-  onDone: () => void;
+  onCreated: (item: Item) => void;
 };
 
 export type NewItemForm = {
@@ -65,10 +69,12 @@ export type NewItemForm = {
 
 export type Browser = {
   folderId: FolderId;
-  highlightedId: string | null;
+  focus: RowFocus | null;
   creating: ItemType | null;
   open: (folderId: FolderId) => void;
   select: (item: Item) => void;
   startCreate: (type: ItemType) => void;
-  finishCreate: () => void;
+  cancelCreate: () => void;
+  created: (item: Item) => void;
+  focusItem: (id: string) => void;
 };

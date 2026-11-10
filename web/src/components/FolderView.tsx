@@ -1,78 +1,55 @@
-import { type ReactNode, useEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
 import { useFolderItems } from '../api/items';
-import type {
-  FolderViewProps,
-  ItemListProps,
-  ItemRowProps,
-} from './components.types';
-import { DeleteButton } from './DeleteButton';
-import { FolderLink } from './FolderLink';
-import { FileIcon, FolderIcon } from './Icons';
-import { NewItemButtons } from './NewItemButtons';
+import type { Item } from '../api/api.types';
+import type { FolderViewProps, ItemListProps } from './components.types';
+import { ItemRow } from './ItemRow';
 import { NewItemRow } from './NewItemRow';
 
-function ItemRow({
-  item,
-  highlighted,
-  onOpen,
-}: Readonly<ItemRowProps>): ReactNode {
-  const rowRef = useRef<HTMLLIElement>(null);
-  const isFolder = item.type === 'folder';
-
-  useEffect(() => {
-    if (highlighted) {
-      rowRef.current?.scrollIntoView({ block: 'center' });
-    }
-  }, [highlighted]);
-
-  const name = (
-    <span className="name" title={item.name}>
-      {item.name}
-    </span>
-  );
-  return (
-    <li ref={rowRef} className={highlighted ? 'item highlighted' : 'item'}>
-      {isFolder ? <FolderIcon /> : <FileIcon />}
-      {isFolder ? (
-        <FolderLink folderId={item.id} onOpen={onOpen}>
-          {name}
-        </FolderLink>
-      ) : (
-        name
-      )}
-      <DeleteButton id={item.id} name={item.name} />
-    </li>
-  );
+function focusNeighbor(
+  items: ReadonlyArray<Item>,
+  index: number,
+  onFocusItem: (id: string) => void,
+): void {
+  const neighbor = items[index + 1] ?? items[index - 1];
+  if (neighbor !== undefined) {
+    onFocusItem(neighbor.id);
+  }
 }
 
 function ItemList({
   folderId,
   items,
-  highlightedId,
   creating,
-  onCreate,
-  onCreateDone,
+  onCreated,
+  onCreateCancel,
+  focus,
+  onFocusItem,
   onOpen,
 }: Readonly<ItemListProps>): ReactNode {
   if (items.length === 0 && creating === null) {
     return (
-      <div className="empty" aria-live="polite">
-        <p>This folder is empty.</p>
-        <NewItemButtons onCreate={onCreate} />
-      </div>
+      <p className="empty" aria-live="polite">
+        This folder is empty.
+      </p>
     );
   }
   return (
     <ul className="items">
       {creating !== null && (
-        <NewItemRow type={creating} folderId={folderId} onDone={onCreateDone} />
+        <NewItemRow
+          type={creating}
+          folderId={folderId}
+          onCreated={onCreated}
+          onCancel={onCreateCancel}
+        />
       )}
-      {items.map((item) => (
+      {items.map((item, index) => (
         <ItemRow
           key={item.id}
           item={item}
-          highlighted={item.id === highlightedId}
+          focus={focus}
           onOpen={onOpen}
+          onDeleted={() => focusNeighbor(items, index, onFocusItem)}
         />
       ))}
     </ul>
@@ -81,9 +58,7 @@ function ItemList({
 
 export function FolderView({
   folderId,
-  highlightedId,
-  onOpen,
-  ...createProps
+  ...listProps
 }: Readonly<FolderViewProps>): ReactNode {
   const folder = useFolderItems(folderId);
 
@@ -98,11 +73,9 @@ export function FolderView({
   return (
     <section aria-label="Folder contents">
       <ItemList
-        {...createProps}
+        {...listProps}
         folderId={folderId}
         items={folder.data.pages.flatMap((page) => page.items)}
-        highlightedId={highlightedId}
-        onOpen={onOpen}
       />
       {folder.hasNextPage ? (
         <button

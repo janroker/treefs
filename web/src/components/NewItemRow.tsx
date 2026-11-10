@@ -4,7 +4,7 @@ import type { NewItemRowProps } from './components.types';
 import { FileIcon, FolderIcon } from './Icons';
 
 export function NewItemRow(props: Readonly<NewItemRowProps>): ReactNode {
-  const { type, onDone } = props;
+  const { type, onCancel } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const form = useNewItem({ ...props, inputRef });
 
@@ -13,7 +13,7 @@ export function NewItemRow(props: Readonly<NewItemRowProps>): ReactNode {
       {type === 'folder' ? <FolderIcon /> : <FileIcon />}
       <form
         onSubmit={form.submit}
-        onKeyDown={(event) => event.key === 'Escape' && onDone()}
+        onKeyDown={(event) => event.key === 'Escape' && onCancel()}
       >
         <input
           ref={inputRef}
@@ -30,7 +30,7 @@ export function NewItemRow(props: Readonly<NewItemRowProps>): ReactNode {
         >
           Create
         </button>
-        <button type="button" onClick={onDone}>
+        <button type="button" onClick={onCancel}>
           Cancel
         </button>
       </form>

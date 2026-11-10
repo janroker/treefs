@@ -12,19 +12,28 @@ type FolderIdProps = {
 
 export type BreadcrumbsProps = FolderIdProps & OpenFolderProps;
 
+export type RowFocus = { id: string; flash: boolean };
+
 type CreateProps = {
   creating: ItemType | null;
-  onCreate: (type: ItemType) => void;
-  onCreateDone: () => void;
+  onCreated: (item: Item) => void;
+  onCreateCancel: () => void;
+};
+
+type FocusProps = {
+  focus: RowFocus | null;
+  onFocusItem: (id: string) => void;
 };
 
 export type FolderViewProps = FolderIdProps &
   OpenFolderProps &
-  CreateProps & { highlightedId: string | null };
+  CreateProps &
+  FocusProps;
 
 export type ItemRowProps = OpenFolderProps & {
   item: Item;
-  highlighted: boolean;
+  focus: RowFocus | null;
+  onDeleted: () => void;
 };
 
 export type FolderLinkProps = OpenFolderProps & {
@@ -35,6 +44,17 @@ export type FolderLinkProps = OpenFolderProps & {
 export type DeleteButtonProps = {
   id: string;
   name: string;
+  type: ItemType;
+  onDeleted: () => void;
+};
+
+export type DeleteConfirmProps = {
+  name: string;
+  type: ItemType;
+  pending: boolean;
+  error: Error | null;
+  onConfirm: () => void;
+  onCancel: () => void;
 };
 
 export type TypeFilter = ItemType | 'both';
@@ -93,17 +113,18 @@ export type SearchFieldProps = {
 
 export type ItemListProps = FolderIdProps &
   OpenFolderProps &
-  CreateProps & {
-    items: Array<Item>;
-    highlightedId: string | null;
-  };
+  CreateProps &
+  FocusProps & { items: Array<Item> };
 
 export type NewItemRowProps = FolderIdProps & {
   type: ItemType;
-  onDone: () => void;
+  onCreated: (item: Item) => void;
+  onCancel: () => void;
 };
 
-export type NewItemButtonsProps = Pick<CreateProps, 'onCreate'>;
+export type NewItemButtonsProps = {
+  onCreate: (type: ItemType) => void;
+};
 
 export type SearchInputProps = {
   form: SearchForm;

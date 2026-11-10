@@ -6,7 +6,7 @@ export function useNewItem({
   type,
   folderId,
   inputRef,
-  onDone,
+  onCreated,
 }: NewItemFormConfig): NewItemForm {
   const [name, setName] = useState('');
   const create = useCreateItem();
@@ -22,7 +22,7 @@ export function useNewItem({
 
   function submit(event: SyntheticEvent<HTMLFormElement>): void {
     event.preventDefault();
-    create.mutate({ type, name, parentId: folderId }, { onSuccess: onDone });
+    create.mutate({ type, name, parentId: folderId }, { onSuccess: onCreated });
   }
 
   return {
